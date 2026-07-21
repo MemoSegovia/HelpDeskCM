@@ -3,690 +3,325 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal de Maestros - Helpdesk CM</title>
+  <title>Helpdesk CM - Inicio</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Sistema de soporte tecnológico y gestión de incidencias de TI para el Colegio Mexicano. Conexión rápida entre docentes y personal de sistemas.">
+  <meta name="author" content="Colegio Mexicano">
+  
+  <!-- Google Fonts & Stylesheets -->
   <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Estilos Adicionales Premium para la Pantalla de Inicio */
+    .home-hero {
+      text-align: center;
+      padding: 4rem 1rem 2rem 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .home-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, var(--primary) 30%, var(--primary-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .home-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .home-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .role-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      text-align: center;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+      transition: background var(--transition-fast);
+    }
+    
+    .role-card.colaborador::before {
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-hover) 100%);
+    }
+    
+    .role-card.soporte::before {
+      background: linear-gradient(90deg, var(--primary-accent) 0%, #3b82f6 100%);
+    }
+    
+    .role-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    
+    .role-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      background: #f8fafc;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      transition: transform var(--transition-normal);
+    }
+    
+    .role-card:hover .role-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .role-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .role-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+    
+    .btn-role {
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      display: inline-block;
+    }
+    
+    .btn-colaborador {
+      background: var(--accent);
+      color: var(--text-white);
+      border: none;
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+    }
+    
+    .btn-colaborador:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(217, 119, 6, 0.3);
+    }
+    
+    .btn-soporte {
+      background: var(--primary-accent);
+      color: var(--text-white);
+      border: none;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+    }
+    
+    .btn-soporte:hover {
+      background: #0270a9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(2, 132, 199, 0.3);
+    }
+    
+    .features-section {
+      max-width: 900px;
+      margin: 4rem auto;
+      padding: 0 1rem;
+    }
+    
+    .features-title {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--primary);
+    }
+    
+    .features-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 600px) {
+      .features-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .feature-item {
+      display: flex;
+      gap: 1rem;
+      background: var(--surface-glass);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+    
+    .feature-check {
+      color: var(--primary-accent);
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    
+    .feature-text h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .feature-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    .home-footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Overlay de Inicio de Sesión -->
-  <div id="loginOverlay" class="login-overlay">
-    <div class="login-card">
-      <span class="login-logo">🏫</span>
-      <h2 class="login-title">Helpdesk CM</h2>
-      <p class="login-subtitle">Colegio Mexicano - Portal de Docentes</p>
-      
-      <div class="form-group">
-        <label for="usernameInput" class="form-label">Nombre del Docente / Colaborador</label>
-        <input type="text" id="usernameInput" class="form-control" placeholder="Ingresa tu nombre..." required>
-      </div>
-      
-      <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Ingresar al Sistema</button>
-    </div>
-  </div>
-
-  <!-- Navegación Principal -->
-  <nav class="navbar">
-    <div class="navbar-content">
-      <a href="home.html" class="brand" style="text-decoration: none; color: inherit; cursor: pointer;">
-        <div>
-          <span class="brand-logo">Helpdesk CM</span>
-          <span class="brand-sub">Colegio Mexicano</span>
-        </div>
-      </a>
-      <div class="user-profile">
-        <span class="user-name" id="displayUsername">Cargando...</span>
-        <button id="logoutBtn" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cerrar Sesión</button>
+  <!-- Navegación Simplificada -->
+  <nav class="navbar" style="backdrop-filter: blur(10px); background: rgba(248, 250, 252, 0.8);">
+    <div class="navbar-content" style="justify-content: center;">
+      <div class="brand" style="text-align: center;">
+        <span class="brand-logo">Helpdesk CM</span>
+        <span class="brand-sub">Colegio Mexicano</span>
       </div>
     </div>
   </nav>
 
-  <!-- Contenido Principal -->
-  <main class="container">
+  <!-- Hero Section -->
+  <div class="home-hero">
+    <h1 class="home-title">Centro de Soporte Tecnológico</h1>
+    <p class="home-subtitle">
+      Bienvenido al portal institucional de TI. Reporta fallas en aulas, solicita mantenimiento de equipos o gestiona incidencias de manera ágil y directa.
+    </p>
+  </div>
+
+  <!-- Role Selection Grid -->
+  <div class="home-grid">
     
-    <!-- Conexión segura configurada con Google Sheets -->
-
-    <!-- Sección de Estadísticas Individuales -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon bg-stat-total">📋</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statTotal">0</span>
-          <span class="stat-label">Mis Reportes</span>
-        </div>
+    <!-- Card Colaborador -->
+    <div class="role-card colaborador">
+      <div class="role-icon">🏫</div>
+      <div>
+        <h2 class="role-name">Colaboradores</h2>
+        <p class="role-desc">
+          Acceso exclusivo para docentes y personal administrativo del plantel. Envía reportes de fallas de red, proyectores, computadoras u otros sistemas y chatea en tiempo real con el equipo técnico.
+        </p>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon bg-stat-pending">⌛</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statPending">0</span>
-          <span class="stat-label">Pendientes</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon bg-stat-process">⚙️</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statProcess">0</span>
-          <span class="stat-label">En Proceso</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon bg-stat-resolved">✅</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statResolved">0</span>
-          <span class="stat-label">Solucionados</span>
-        </div>
-      </div>
+      <a href="colaboradores.html" class="btn-role btn-colaborador">Soy Colaborador</a>
     </div>
-
-    <!-- Contenido en Dos Columnas -->
-    <div class="dashboard-grid">
-      
-      <!-- Columna 1: Crear Reporte -->
-      <section class="card">
-        <h3 class="card-title">Reportar Incidencia</h3>
-        <form id="newTicketForm">
-          
-          <div class="form-group">
-            <label for="ticketLocation" class="form-label">Ubicación / Salón / Aula</label>
-            <input type="text" id="ticketLocation" class="form-control" placeholder="Ej. Aula de 5to A, Laboratorio 2, Dirección" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="ticketType" class="form-label">Tipo de Solicitud</label>
-            <select id="ticketType" class="form-control" required>
-              <option value="" disabled selected>Seleccione una opción...</option>
-              <option value="Falla de Red/Internet">Falla de Red / Internet</option>
-              <option value="Reparación de Hardware">Reparación de Hardware</option>
-              <option value="Soporte de iPads">Soporte de iPads</option>
-              <option value="Instalación de Software">Instalación de Software</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="ticketDescription" class="form-label">Descripción del Problema</label>
-            <textarea id="ticketDescription" class="form-control" placeholder="Describe brevemente el inconveniente para que el equipo de soporte técnico lo entienda..." required></textarea>
-          </div>
-          
-          <button type="submit" id="submitTicketBtn" class="btn btn-accent" style="width: 100%;">
-            Enviar Reporte de Soporte
-          </button>
-        </form>
-      </section>
-
-      <!-- Columna 2: Listado de Reportes Propios -->
-      <section class="card">
-        <h3 class="card-title">Mis Tickets de Soporte</h3>
-        <div class="table-wrapper">
-          <table class="custom-table" id="ticketsTable">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Fecha / Hora</th>
-                <th>Ubicación</th>
-                <th>Tipo de Reporte</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Chat / Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="ticketsTableBody">
-              <tr>
-                <td colspan="7" class="text-center" style="color: var(--text-muted); padding: 2rem;">
-                  Inicia sesión para ver tus tickets.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      
+    
+    <!-- Card Soporte -->
+    <div class="role-card soporte">
+      <div class="role-icon">🛠️</div>
+      <div>
+        <h2 class="role-name">Soporte Técnico</h2>
+        <p class="role-desc">
+          Tablero exclusivo para ingenieros y personal del departamento de TI. Revisa reportes abiertos, actualiza el estado de las solicitudes e inicia diálogos directos con el personal solicitante.
+        </p>
+      </div>
+      <a href="dashboard.html" class="btn-role btn-soporte">Soy Soporte Técnico</a>
     </div>
-  </main>
+    
+  </div>
 
-  <!-- Modal de Chat -->
-  <div id="chatModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="chatModalTitle">Historial de Chat</h3>
-        <button class="modal-close" onclick="closeChat()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="chat-container">
-          <div class="chat-history" id="chatHistoryContainer">
-            <!-- Burbujas de chat se insertan dinámicamente aquí -->
-          </div>
-          <div class="chat-footer">
-            <input type="text" id="chatMessageInput" class="chat-input" placeholder="Escribe un mensaje de respuesta..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
-            <button id="sendChatBtn" class="btn btn-primary" onclick="sendChatMessage()" style="padding: 0.5rem 1rem;">Enviar</button>
-          </div>
+  <!-- Features/What it does section -->
+  <div class="features-section">
+    <h3 class="features-title">¿Qué puedes hacer en Helpdesk CM?</h3>
+    <div class="features-list">
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Reporte Instantáneo</h4>
+          <p>Llena un formulario sencillo especificando el aula, salón y el tipo de falla técnica para pedir asistencia.</p>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeChat()">Cerrar Chat</button>
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Chat Directo</h4>
+          <p>Comunícate directamente con soporte mediante la sala de chat en vivo del ticket en proceso.</p>
+        </div>
       </div>
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Tablero Informativo</h4>
+          <p>Consulta métricas en tiempo real sobre los reportes pendientes, resueltos y en atención.</p>
+        </div>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Base de Datos en Nube</h4>
+          <p>Respaldado de forma segura en Google Sheets para una total transparencia e historial permanente.</p>
+        </div>
+      </div>
+      
     </div>
   </div>
 
-  <!-- Contenedor para Notificaciones Toast flotantes -->
-  <div class="toast-container" id="toastContainer"></div>
+  <!-- Footer -->
+  <footer class="home-footer">
+    <p>© 2026 Colegio Mexicano - Departamento de Soporte Tecnológico e Innovación</p>
+  </footer>
 
-  <!-- Lógica de Negocio y Conectividad -->
-  <script>
-    // Ciberseguridad: Cadenas ofuscadas en Base64 para prevenir lectura directa en DevTools
-    const obfUrl = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5ZUlpdWgyMFZ4eUpGYUg5bVo4WlVjTFEyUjlTcWFzbjlidE05OHpBeVQ4LTVFR3RjUGFyWHBIekJrdDByZGRiRVEvZXhlYw==';
-    const obfToken = 'Q00tSGVscGRlc2stVG9rZW4tU2VndXJpZGFkLUNvbGVnaW9NZXhpY2Fuby0yMDI2';
-    const obfDocentes = 'WyJNYXLDrWEgRXVnZW5pYSBNb3JhbGVzIiwiSm9zw6kgUm9sYW5kbyBNZW5kb3phIiwiTmFkaWEgR2lzZWxhIE5hdmFycm8iLCJGcmFuY2lzY2EgVmlyaWRpYW5hIEdhcmPDrWEiLCJHbGVuZGEgQXR6aW1iYSBTw6FuY2hleiIsIlp1bGV5bWEgQWlkZXRoIFJpdmVyYSIsIkFybWFuZG8gSGVybsOhbmRleiIsIkNhcm1pbmEgUm9kcsOtZ3VleiIsIk5vw6kgR3VpbGxlcm1vIFNlZ292aWEiLCJFcmFzbW8gUml2ZXJhIiwiTm9lbCBQw6lyZXogRW5yw61xdWV6IiwiQ2FybG9zIEVkdWFyZG8gR8OzbWV6IiwiQ3Jpc3RlbCBTb2JyZXZpbGxhIFJvZHLDrWd1ZXoiLCJPc2FnaWUgT21vcmVnaWUiLCJBbGVqYW5kcmEgRGVuaXNzIFJleWVzIiwiSXJ2aW4gRmVybmFuZG8gUm9qYXMiLCJBbWFuZGEgQmVybWFuIiwiVGlmZmFueSBUaWFyw6kgVG92w61hcyIsIk1hcnRoYSBDYXN0aWxsbyIsIk1hcsOtYSBkZWwgQ2FybWVuIFJvZHLDrWd1ZXoiLCJMZXNsaWUiLCJPY3RhdmlvIEFkYWxiZXJ0byBTYW50YSBDcnV6IiwiSXR6ZWwgRWxpem9uZG8gU2FsaW5hcyIsIk1hcnRoYSBMYXVyYSBIZXJuw6FuZGV6IiwiTGVzbHkgU2ltYnLDs24gWmVwZXRhIiwiSGFubmlhIE1vbnRlam8gU8OhbmNoZXoiLCJFZGdhciBSdWl6IiwiSW5nLiBTZWdvdmlhIiwiSW5nLiBBbGJlcnRvIiwiUnV0aCBDYW1hcmVubyJd';
-
-    // Decodificación en memoria a tiempo de ejecución (Crea el array de docentes de forma segura)
-    const apiUrl = atob(obfUrl);
-    const apiToken = atob(obfToken);
-    const DOCENTES_AUTORIZADOS = JSON.parse(decodeURIComponent(escape(atob(obfDocentes))));
-
-    // Variables globales
-    let currentUser = null;
-    let knownTicketStatuses = {}; // Guarda estados de tickets cargados anteriormente
-    let isFirstLoad = true;
-    let activeChatTicketId = null;
-    let chatInterval = null;
-    let pollInterval = null;
-    let currentTicketsList = []; // Cache local de los tickets del usuario
-
-    // Inicialización del sistema
-    document.addEventListener("DOMContentLoaded", () => {
-      currentUser = localStorage.getItem('helpdesk_usuario') || '';
-      
-      if (currentUser) {
-        // Usuario ya logueado, ocultar login y cargar panel principal
-        document.getElementById('loginOverlay').classList.add('d-none');
-        initializeDashboard();
-      } else {
-        // Mostrar ventana de login
-        document.getElementById('loginOverlay').classList.remove('d-none');
-      }
-
-      // Event Listeners
-      document.getElementById('loginBtn').addEventListener('click', handleLogin);
-      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-      document.getElementById('newTicketForm').addEventListener('submit', handleCreateTicket);
-
-      // Ciberseguridad: Bloqueos de Inspección en Cliente
-      document.addEventListener('contextmenu', e => e.preventDefault()); // Desactivar click derecho
-      
-      document.addEventListener('keydown', e => {
-        // Bloquear F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U
-        if (
-          e.key === 'F12' || 
-          (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(e.key.toUpperCase())) ||
-          (e.ctrlKey && e.key.toUpperCase() === 'U')
-        ) {
-          e.preventDefault();
-          showToast('⚠️ Acción no permitida por políticas de ciberseguridad.');
-        }
-      });
-
-      // Trampa de Debugger loop en segundo plano
-      setInterval(() => {
-        (function() {
-          (function trap(i) {
-            if (("" + i / i).length !== 1 || i % 20 === 0) {
-              (function() {}).constructor("debugger")();
-            } else {
-              (function() {}).constructor("debugger")();
-            }
-            trap(++i);
-          })(0);
-        })();
-      }, 500);
-    });
-
-    // Manejar Inicio de Sesión
-    function handleLogin() {
-      const username = document.getElementById('usernameInput').value.trim();
-      
-      if (!username) {
-        alert("Por favor, ingresa tu nombre para continuar.");
-        return;
-      }
-
-      // Validar si el nombre ingresado coincide con un docente autorizado (case-insensitive)
-      const matchedDocente = DOCENTES_AUTORIZADOS.find(
-        docente => docente.toLowerCase().trim() === username.toLowerCase()
-      );
-
-      if (!matchedDocente) {
-        alert("El nombre ingresado no se encuentra registrado en la lista de docentes autorizados. Por favor verifica su escritura o contacta al administrador.");
-        return;
-      }
-
-      // Guardamos la ortografía oficial de la lista
-      currentUser = matchedDocente;
-      localStorage.setItem('helpdesk_usuario', currentUser);
-
-      document.getElementById('loginOverlay').classList.add('d-none');
-      initializeDashboard();
-    }
-
-    // Cerrar Sesión
-    function handleLogout() {
-      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        localStorage.removeItem('helpdesk_usuario');
-        currentUser = null;
-        
-        // Detener intervalos
-        if (pollInterval) clearInterval(pollInterval);
-        if (chatInterval) clearInterval(chatInterval);
-        
-        // Reestablecer vistas
-        document.getElementById('loginOverlay').classList.remove('d-none');
-        document.getElementById('usernameInput').value = '';
-        document.getElementById('ticketsTableBody').innerHTML = `
-          <tr>
-            <td colspan="7" class="text-center" style="color: var(--text-muted); padding: 2rem;">
-              Inicia sesión para ver tus tickets.
-            </td>
-          </tr>
-        `;
-        
-        // Limpiar estadísticas
-        document.getElementById('statTotal').innerText = '0';
-        document.getElementById('statPending').innerText = '0';
-        document.getElementById('statProcess').innerText = '0';
-        document.getElementById('statResolved').innerText = '0';
-        
-        knownTicketStatuses = {};
-        isFirstLoad = true;
-      }
-    }
-
-    // Inicializar el panel de control una vez logueado
-    function initializeDashboard() {
-      document.getElementById('displayUsername').innerText = `👤 ${currentUser}`;
-      
-      // Primer fetch
-      fetchTickets();
-      
-      // Iniciar polling automático cada 15 segundos
-      if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(() => {
-        fetchTickets(false); // Silencioso (sin spinner/loading molesto)
-      }, 15000);
-    }
-
-    // Obtener los tickets desde el backend
-    function fetchTickets(showLoading = true) {
-      if (!apiUrl) {
-        console.warn("API URL no configurada.");
-        return;
-      }
-
-      const tableBody = document.getElementById('ticketsTableBody');
-      if (showLoading && isFirstLoad) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="7" class="text-center" style="padding: 2rem;">
-              <div class="mb-2">⌛ Conectando con la base de datos de Google Sheets...</div>
-            </td>
-          </tr>
-        `;
-      }
-
-      // Hacemos el GET al script enviando el token de seguridad
-      fetch(`${apiUrl}?token=${encodeURIComponent(apiToken)}`)
-        .then(response => {
-          if (!response.ok) throw new Error("Error en la petición de datos.");
-          return response.json();
-        })
-        .then(data => {
-          // Filtrar tickets para mostrar solo los de este docente (comparando 'usuario' en minúsculas)
-          // Si por alguna razón la respuesta trae error de GAS, manejarlo
-          if (data && data.success === false) {
-            throw new Error(data.error || "Ocurrió un error en el script.");
-          }
-
-          const allTickets = Array.isArray(data) ? data : [];
-          
-          // Filtrar tickets pertenecientes al docente logueado
-          currentTicketsList = allTickets.filter(ticket => 
-            ticket.usuario && ticket.usuario.toLowerCase().trim() === currentUser.toLowerCase().trim()
-          );
-
-          // Verificar notificaciones por cambios de estado
-          checkNotifications(currentTicketsList);
-          
-          // Renderizar tabla y estadísticas
-          renderStats(currentTicketsList);
-          renderTicketsTable(currentTicketsList);
-
-          // Si el chat está abierto, refrescar el historial
-          if (activeChatTicketId !== null) {
-            renderChat(activeChatTicketId);
-          }
-        })
-        .catch(err => {
-          console.error("Error al obtener tickets:", err);
-          if (isFirstLoad) {
-            tableBody.innerHTML = `
-              <tr>
-                <td colspan="7" class="text-center" style="color: #ef4444; padding: 2rem; font-weight: 600;">
-                  ⚠️ Error al conectar con Google Sheets. Verifica la URL de API.
-                </td>
-              </tr>
-            `;
-          }
-        });
-    }
-
-    // Renderizar las estadísticas
-    function renderStats(tickets) {
-      const total = tickets.length;
-      const pending = tickets.filter(t => t.estado === 'Pendiente').length;
-      const process = tickets.filter(t => t.estado === 'En Proceso').length;
-      const resolved = tickets.filter(t => t.estado === 'Resuelto').length;
-
-      document.getElementById('statTotal').innerText = total;
-      document.getElementById('statPending').innerText = pending;
-      document.getElementById('statProcess').innerText = process;
-      document.getElementById('statResolved').innerText = resolved;
-    }
-
-    // Renderizar la tabla con los reportes propios
-    function renderTicketsTable(tickets) {
-      const tableBody = document.getElementById('ticketsTableBody');
-      
-      // Filtrar tickets ocultados localmente por el docente
-      const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
-      const visibleTickets = tickets.filter(t => !hiddenTickets.includes(t.id));
-
-      if (visibleTickets.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="7" class="text-center" style="color: var(--text-muted); padding: 2rem;">
-              No tienes tickets registrados actualmente. ¡Usa el formulario lateral para enviar un reporte!
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      // Ordenar por ID descendente (los más nuevos primero)
-      const sortedTickets = [...visibleTickets].sort((a, b) => b.id - a.id);
-
-      tableBody.innerHTML = sortedTickets.map(ticket => {
-        const dateStr = ticket.fechaHora ? new Date(ticket.fechaHora).toLocaleString('es-MX', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        }) : '---';
-
-        let badgeClass = 'badge-pending';
-        if (ticket.estado === 'En Proceso') badgeClass = 'badge-process';
-        else if (ticket.estado === 'Resuelto') badgeClass = 'badge-resolved';
-
-        // Mostrar botón de chat solo si el estado es 'En Proceso'
-        const chatButton = ticket.estado === 'En Proceso'
-          ? `<button class="btn btn-chat" onclick="openChat(${ticket.id})">💬 Abrir Chat</button>`
-          : `<span style="color: var(--text-muted); font-size: 0.8rem;">Chat no disponible</span>`;
-
-        // Botón de ocultar local
-        const deleteButton = `<button class="btn" style="padding: 0.25rem 0.5rem; background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;" onclick="hideTicket(${ticket.id})" title="Ocultar de la vista (No borra en Google Sheets)">🗑️</button>`;
-
-        return `
-          <tr>
-            <td style="font-weight: 700;">#${ticket.id}</td>
-            <td>${dateStr}</td>
-            <td>${ticket.ubicacion}</td>
-            <td style="font-weight: 600;">${ticket.tipoSolicitud}</td>
-            <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ticket.descripcion}">
-              ${ticket.descripcion}
-            </td>
-            <td><span class="badge ${badgeClass}">${ticket.estado}</span></td>
-            <td>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                ${chatButton}
-                ${deleteButton}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // Ocultar ticket localmente sin borrar de Google Sheets
-    function hideTicket(id) {
-      if (confirm(`¿Deseas ocultar el ticket #${id} de esta pantalla? (No se eliminará de Google Sheets)`)) {
-        const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
-        if (!hiddenTickets.includes(id)) {
-          hiddenTickets.push(id);
-          localStorage.setItem('helpdesk_hidden_tickets', JSON.stringify(hiddenTickets));
-        }
-        renderTicketsTable(currentTicketsList);
-        showToast(`✅ Ticket #${id} ocultado de la vista local.`);
-      }
-    }
-
-    // Enviar Reporte de Incidencia (POST create)
-    function handleCreateTicket(event) {
-      event.preventDefault();
-      
-      if (!apiUrl) {
-        alert('Configura la URL de API en la advertencia superior antes de enviar.');
-        return;
-      }
-
-      const location = document.getElementById('ticketLocation').value.trim();
-      const type = document.getElementById('ticketType').value;
-      const description = document.getElementById('ticketDescription').value.trim();
-      const submitBtn = document.getElementById('submitTicketBtn');
-
-      if (!location || !type || !description) {
-        alert('Por favor, llena todos los campos obligatorios.');
-        return;
-      }
-
-      // Deshabilitar botón
-      submitBtn.disabled = true;
-      submitBtn.innerText = 'Enviando Reporte...';
-
-      const payload = {
-        action: 'create',
-        token: apiToken, // Incluir token en payload POST
-        usuario: currentUser,
-        ubicacion: location,
-        tipoSolicitud: type,
-        descripcion: description
-      };
-
-      // Enviar como text/plain para evitar Preflight CORS en GAS
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain'
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => {
-          if (!response.ok) throw new Error("Error de red.");
-          return response.json();
-        })
-        .then(result => {
-          if (result.success) {
-            showToast('✅ Reporte enviado y guardado en la hoja de cálculo de Google Sheets.');
-            document.getElementById('newTicketForm').reset();
-            fetchTickets(false);
-          } else {
-            alert('Error en el script: ' + result.error);
-          }
-        })
-        .catch(err => {
-          console.error("Error al reportar:", err);
-          alert('Hubo un error al enviar el ticket. Valida tu conexión y la URL del script.');
-        })
-        .finally(() => {
-          submitBtn.disabled = false;
-          submitBtn.innerText = 'Enviar Reporte de Soporte';
-        });
-    }
-
-    // Verificar notificaciones basadas en cambio de estado a "En Proceso"
-    function checkNotifications(tickets) {
-      tickets.forEach(ticket => {
-        const prevStatus = knownTicketStatuses[ticket.id];
-        // Si ya teníamos registrado el ticket anteriormente y cambió a "En Proceso"
-        if (prevStatus !== undefined && prevStatus !== ticket.estado) {
-          if (ticket.estado === 'En Proceso') {
-            showToast(`🔔 ¡Tu ticket #${ticket.id} (${ticket.tipoSolicitud}) cambió a "En Proceso"! El equipo de tecnología está atendiéndote.`);
-          } else if (ticket.estado === 'Resuelto') {
-            showToast(`✅ ¡Tu ticket #${ticket.id} (${ticket.tipoSolicitud}) ha sido Resuelto!`);
-          }
-        }
-        // Guardar estado actual
-        knownTicketStatuses[ticket.id] = ticket.estado;
-      });
-      isFirstLoad = false;
-    }
-
-    // Crear y mostrar un Toast
-    function showToast(message) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.innerHTML = `
-        <div class="toast-body">${message}</div>
-        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
-      `;
-      container.appendChild(toast);
-
-      // Auto-eliminar después de 5 segundos
-      setTimeout(() => {
-        toast.classList.add('removing');
-        setTimeout(() => toast.remove(), 300);
-      }, 5000);
-    }
-
-    // Abrir Modal de Chat
-    function openChat(ticketId) {
-      activeChatTicketId = ticketId;
-      document.getElementById('chatModalTitle').innerText = `Conversación - Ticket #${ticketId}`;
-      const modal = document.getElementById('chatModal');
-      modal.classList.add('show');
-      
-      // Render inmediato
-      renderChat(ticketId);
-
-      // Iniciar polling rápido de chat cada 5 segundos mientras el chat esté abierto
-      if (chatInterval) clearInterval(chatInterval);
-      chatInterval = setInterval(() => {
-        fetchTickets(false); // Esto refresca la lista interna y re-dibuja el chat
-      }, 5000);
-    }
-
-    // Cerrar Modal de Chat
-    function closeChat() {
-      activeChatTicketId = null;
-      if (chatInterval) {
-        clearInterval(chatInterval);
-        chatInterval = null;
-      }
-      document.getElementById('chatModal').classList.remove('show');
-      document.getElementById('chatMessageInput').value = '';
-    }
-
-    // Renderizar mensajes del chat en el modal
-    function renderChat(ticketId) {
-      const chatContainer = document.getElementById('chatHistoryContainer');
-      const ticket = currentTicketsList.find(t => t.id === ticketId);
-      
-      if (!ticket) {
-        chatContainer.innerHTML = '<div class="text-center" style="color: var(--text-muted); padding: 2rem;">No se encontraron datos del ticket.</div>';
-        return;
-      }
-
-      const chatHistory = ticket.historialChat || [];
-      
-      if (chatHistory.length === 0) {
-        chatContainer.innerHTML = `
-          <div class="text-center" style="color: var(--text-muted); padding: 2rem; font-style: italic; font-size: 0.9rem;">
-            ¡Chat iniciado! Envía un mensaje para comunicarte con el departamento de tecnología.
-          </div>
-        `;
-        return;
-      }
-
-      chatContainer.innerHTML = chatHistory.map(msg => {
-        // Identificar si el mensaje es del usuario docente actual o de alguien más (Ej: Soporte/Admin)
-        const isOwn = msg.remitente && msg.remitente.toLowerCase().trim() === currentUser.toLowerCase().trim();
-        const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('es-MX', {
-          hour: '2-digit', minute: '2-digit'
-        }) : '';
-
-        return `
-          <div class="chat-bubble ${isOwn ? 'own' : 'other'}">
-            <span class="chat-sender">${isOwn ? 'Tú' : msg.remitente}</span>
-            <span class="chat-text">${msg.mensaje}</span>
-            <span class="chat-time">${timeStr}</span>
-          </div>
-        `;
-      }).join('');
-
-      // Auto scroll al fondo
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    // Enviar mensaje de chat (POST add_message)
-    function sendChatMessage() {
-      const inputEl = document.getElementById('chatMessageInput');
-      const message = inputEl.value.trim();
-      const sendBtn = document.getElementById('sendChatBtn');
-
-      if (!message) return;
-      if (!apiUrl || activeChatTicketId === null) return;
-
-      // Deshabilitar entrada temporalmente
-      inputEl.disabled = true;
-      sendBtn.disabled = true;
-
-      const payload = {
-        action: 'add_message',
-        token: apiToken, // Incluir token en payload POST
-        id: activeChatTicketId,
-        remitente: currentUser,
-        mensaje: message
-      };
-
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain'
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => {
-          if (!response.ok) throw new Error("Error al enviar mensaje.");
-          return response.json();
-        })
-        .then(result => {
-          if (result.success) {
-            inputEl.value = '';
-            
-            // Actualizar localmente el ticket específico para mostrar el mensaje de inmediato
-            const ticket = currentTicketsList.find(t => t.id === activeChatTicketId);
-            if (ticket) {
-              ticket.historialChat = result.chat;
-            }
-            renderChat(activeChatTicketId);
-          } else {
-            alert('Error al enviar el mensaje: ' + result.error);
-          }
-        })
-        .catch(err => {
-          console.error("Error en chat:", err);
-          alert('No se pudo enviar el mensaje. Revisa tu conexión de red.');
-        })
-        .finally(() => {
-          inputEl.disabled = false;
-          sendBtn.disabled = false;
-          inputEl.focus();
-        });
-    }
-  </script>
 </body>
 </html>
