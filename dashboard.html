@@ -208,47 +208,15 @@
 
   <!-- JS de Administración -->
   <script>
-    // Listado de docentes autorizados del Colegio Mexicano
-    const DOCENTES_AUTORIZADOS = [
-      "María Eugenia Morales",
-      "José Rolando Mendoza",
-      "Nadia Gisela Navarro",
-      "Francisca Viridiana García",
-      "Glenda Atzimba Sánchez",
-      "Zuleyma Aideth Rivera",
-      "Armando Hernández",
-      "Carmina Rodríguez",
-      "Noé Guillermo Segovia",
-      "Erasmo Rivera",
-      "Noel Pérez Enríquez",
-      "Carlos Eduardo Gómez",
-      "Cristel Sobrevilla Rodríguez",
-      "Osagie Omoregie",
-      "Alejandra Deniss Reyes",
-      "Irvin Fernando Rojas",
-      "Amanda Berman",
-      "Tiffany Tiaré Tovías",
-      "Martha Castillo",
-      "María del Carmen Rodríguez",
-      "Leslie",
-      "Octavio Adalberto Santa Cruz",
-      "Itzel Elizondo Salinas",
-      "Martha Laura Hernández",
-      "Lesly Simbrón Zepeta",
-      "Hannia Montejo Sánchez",
-      "Edgar Ruiz",
-      "Ing. Segovia",
-      "Ing. Alberto",
-      "Ruth Camareno"
-    ];
-
     // Ciberseguridad: Cadenas ofuscadas en Base64 para prevenir lectura directa en DevTools
-    const obfUrl = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5ZUlidWgyMFZ4eUpGYUg5bVo4WlVjTFEyUjlTcWFzbjlidE05OHpBeVQ4LTVFR3RjUGFYcEh6Qmt0MHJkZGJFUS9leGVj';
+    const obfUrl = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5ZUlpdWgyMFZ4eUpGYUg5bVo4WlVjTFEyUjlTcWFzbjlidE05OHpBeVQ4LTVFR3RjUGFyWHBIekJrdDByZGRiRVEvZXhlYw==';
     const obfToken = 'Q00tSGVscGRlc2stVG9rZW4tU2VndXJpZGFkLUNvbGVnaW9NZXhpY2Fuby0yMDI2';
-    
-    // Decodificación en memoria a tiempo de ejecución
+    const obfDocentes = 'WyJNYXLDrWEgRXVnZW5pYSBNb3JhbGVzIiwiSm9zw6kgUm9sYW5kbyBNZW5kb3phIiwiTmFkaWEgR2lzZWxhIE5hdmFycm8iLCJGcmFuY2lzY2EgVmlyaWRpYW5hIEdhcmPDrWEiLCJHbGVuZGEgQXR6aW1iYSBTw6FuY2hleiIsIlp1bGV5bWEgQWlkZXRoIFJpdmVyYSIsIkFybWFuZG8gSGVybsOhbmRleiIsIkNhcm1pbmEgUm9kcsOtZ3VleiIsIk5vw6kgR3VpbGxlcm1vIFNlZ292aWEiLCJFcmFzbW8gUml2ZXJhIiwiTm9lbCBQw6lyZXogRW5yw61xdWV6IiwiQ2FybG9zIEVkdWFyZG8gR8OzbWV6IiwiQ3Jpc3RlbCBTb2JyZXZpbGxhIFJvZHLDrWd1ZXoiLCJPc2FnaWUgT21vcmVnaWUiLCJBbGVqYW5kcmEgRGVuaXNzIFJleWVzIiwiSXJ2aW4gRmVybmFuZG8gUm9qYXMiLCJBbWFuZGEgQmVybWFuIiwiVGlmZmFueSBUaWFyw6kgVG92w61hcyIsIk1hcnRoYSBDYXN0aWxsbyIsIk1hcsOtYSBkZWwgQ2FybWVuIFJvZHLDrWd1ZXoiLCJMZXNsaWUiLCJPY3RhdmlvIEFkYWxiZXJ0byBTYW50YSBDcnV6IiwiSXR6ZWwgRWxpem9uZG8gU2FsaW5hcyIsIk1hcnRoYSBMYXVyYSBIZXJuw6FuZGV6IiwiTGVzbHkgU2ltYnLDs24gWmVwZXRhIiwiSGFubmlhIE1vbnRlam8gU8OhbmNoZXoiLCJFZGdhciBSdWl6IiwiSW5nLiBTZWdvdmlhIiwiSW5nLiBBbGJlcnRvIiwiUnV0aCBDYW1hcmVubyJd';
+
+    // Decodificación en memoria a tiempo de ejecución (Crea el array de docentes de forma segura)
     const apiUrl = atob(obfUrl);
     const apiToken = atob(obfToken);
+    const DOCENTES_AUTORIZADOS = JSON.parse(decodeURIComponent(escape(atob(obfDocentes))));
 
     // Variables globales
     let ticketsList = []; // Lista total cargada de GAS
