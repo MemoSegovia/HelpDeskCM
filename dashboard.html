@@ -17,7 +17,7 @@
       
       <div class="form-group">
         <label for="usernameInput" class="form-label">Nombre del Técnico / Administrador</label>
-        <input type="text" id="usernameInput" class="form-control" placeholder="Ej. Edgar Ruiz" required>
+        <input type="text" id="usernameInput" class="form-control" placeholder="Ingresa tu nombre..." required>
       </div>
       
       <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Ingresar al Panel</button>
@@ -219,18 +219,12 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeChat()">Cerrar Chat</button>
-  <!-- Contenedor para Notificaciones Toast flotantes -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Overlay de Login -->
-  <div id="loginOverlay" class="modal show" style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 9999;">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-      <h3>Acceso al Panel Técnico</h3>
-      <p>Identifícate para gestionar las incidencias:</p>
-      <input type="text" id="usernameInput" class="form-control" placeholder="Ingresa tu nombre..." style="margin-bottom: 1rem;">
-      <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Entrar al Sistema</button>
+      </div>
     </div>
   </div>
+
+  <!-- Contenedor para Notificaciones Toast flotantes -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <!-- JS de Administración -->
   <script>
