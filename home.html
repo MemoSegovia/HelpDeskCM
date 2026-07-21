@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helpdesk CM - Inicio</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Sistema de soporte tecnológico y gestión de incidencias de TI para el Colegio Mexicano. Conexión rápida entre docentes y personal de sistemas.">
+  <meta name="author" content="Colegio Mexicano">
+  
+  <!-- Google Fonts & Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Estilos Adicionales Premium para la Pantalla de Inicio */
+    .home-hero {
+      text-align: center;
+      padding: 4rem 1rem 2rem 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .home-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, var(--primary) 30%, var(--primary-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .home-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .home-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .role-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      text-align: center;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+      transition: background var(--transition-fast);
+    }
+    
+    .role-card.colaborador::before {
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-hover) 100%);
+    }
+    
+    .role-card.soporte::before {
+      background: linear-gradient(90deg, var(--primary-accent) 0%, #3b82f6 100%);
+    }
+    
+    .role-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    
+    .role-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      background: #f8fafc;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      transition: transform var(--transition-normal);
+    }
+    
+    .role-card:hover .role-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .role-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .role-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+    
+    .btn-role {
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      display: inline-block;
+    }
+    
+    .btn-colaborador {
+      background: var(--accent);
+      color: var(--text-white);
+      border: none;
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+    }
+    
+    .btn-colaborador:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(217, 119, 6, 0.3);
+    }
+    
+    .btn-soporte {
+      background: var(--primary-accent);
+      color: var(--text-white);
+      border: none;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+    }
+    
+    .btn-soporte:hover {
+      background: #0270a9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(2, 132, 199, 0.3);
+    }
+    
+    .features-section {
+      max-width: 900px;
+      margin: 4rem auto;
+      padding: 0 1rem;
+    }
+    
+    .features-title {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--primary);
+    }
+    
+    .features-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 600px) {
+      .features-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .feature-item {
+      display: flex;
+      gap: 1rem;
+      background: var(--surface-glass);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+    
+    .feature-check {
+      color: var(--primary-accent);
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    
+    .feature-text h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .feature-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    .home-footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navegación Simplificada -->
+  <nav class="navbar" style="backdrop-filter: blur(10px); background: rgba(248, 250, 252, 0.8);">
+    <div class="navbar-content" style="justify-content: center;">
+      <div class="brand" style="text-align: center;">
+        <span class="brand-logo">Helpdesk CM</span>
+        <span class="brand-sub">Colegio Mexicano</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="home-hero">
+    <h1 class="home-title">Centro de Soporte Tecnológico</h1>
+    <p class="home-subtitle">
+      Bienvenido al portal institucional de TI. Reporta fallas en aulas, solicita mantenimiento de equipos o gestiona incidencias de manera ágil y directa.
+    </p>
+  </div>
+
+  <!-- Role Selection Grid -->
+  <div class="home-grid">
+    
+    <!-- Card Colaborador -->
+    <div class="role-card colaborador">
+      <div class="role-icon">🏫</div>
+      <div>
+        <h2 class="role-name">Colaboradores</h2>
+        <p class="role-desc">
+          Acceso exclusivo para docentes y personal administrativo del plantel. Envía reportes de fallas de red, proyectores, computadoras u otros sistemas y chatea en tiempo real con el equipo técnico.
+        </p>
+      </div>
+      <a href="index.html" class="btn-role btn-colaborador">Soy Colaborador</a>
+    </div>
+    
+    <!-- Card Soporte -->
+    <div class="role-card soporte">
+      <div class="role-icon">🛠️</div>
+      <div>
+        <h2 class="role-name">Soporte Técnico</h2>
+        <p class="role-desc">
+          Tablero exclusivo para ingenieros y personal del departamento de TI. Revisa reportes abiertos, actualiza el estado de las solicitudes e inicia diálogos directos con el personal solicitante.
+        </p>
+      </div>
+      <a href="dashboard.html" class="btn-role btn-soporte">Soy Soporte Técnico</a>
+    </div>
+    
+  </div>
+
+  <!-- Features/What it does section -->
+  <div class="features-section">
+    <h3 class="features-title">¿Qué puedes hacer en Helpdesk CM?</h3>
+    <div class="features-list">
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Reporte Instantáneo</h4>
+          <p>Llena un formulario sencillo especificando el aula, salón y el tipo de falla técnica para pedir asistencia.</p>
+        </div>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Chat Directo</h4>
+          <p>Comunícate directamente con soporte mediante la sala de chat en vivo del ticket en proceso.</p>
+        </div>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Tablero Informativo</h4>
+          <p>Consulta métricas en tiempo real sobre los reportes pendientes, resueltos y en atención.</p>
+        </div>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-check">✓</div>
+        <div class="feature-text">
+          <h4>Base de Datos en Nube</h4>
+          <p>Respaldado de forma segura en Google Sheets para una total transparencia e historial permanente.</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="home-footer">
+    <p>© 2026 Colegio Mexicano - Departamento de Soporte Tecnológico e Innovación</p>
+  </footer>
+
+</body>
+</html>
