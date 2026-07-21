@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tablero de Soporte - Helpdesk CM</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navegación Principal -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div class="brand">
+        <div>
+          <span class="brand-logo">Helpdesk CM</span>
+          <span class="brand-sub">Colegio Mexicano - Soporte Técnico</span>
+        </div>
+      </div>
+      <div class="user-profile">
+        <span class="user-name" id="displayUsername">👤 Personal Técnico (Sistemas)</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <main class="container">
+
+    <!-- Conexión segura configurada con Google Sheets -->
+
+    <!-- Barra Superior de Acciones y Estadísticas -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">Panel General de Incidencias</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Actualización automática cada 15 segundos</p>
+      </div>
+      <button class="btn btn-accent" onclick="openCreateModal()">
+        ➕ Registrar Incidencia Manual
+      </button>
+    </div>
+
+    <!-- Sección de Estadísticas del Administrador -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon bg-stat-total">📋</div>
+        <div class="stat-info">
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label">Tickets Totales</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-stat-pending">⌛</div>
+        <div class="stat-info">
+          <span class="stat-value" id="statPending">0</span>
+          <span class="stat-label">Pendientes</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-stat-process">⚙️</div>
+        <div class="stat-info">
+          <span class="stat-value" id="statProcess">0</span>
+          <span class="stat-label">En Proceso</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-stat-resolved">✅</div>
+        <div class="stat-info">
+          <span class="stat-value" id="statResolved">0</span>
+          <span class="stat-label">Resueltos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros de búsqueda rápidos (Premium UX) -->
+    <div class="filters-row">
+      <div class="filter-input-group">
+        <label for="filterSearch" class="form-label" style="margin-bottom: 0; font-size: 0.8rem;">Buscar:</label>
+        <input type="text" id="filterSearch" class="form-control" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" placeholder="Usuario o Ubicación..." oninput="applyFilters()">
+      </div>
+      
+      <div class="filter-input-group">
+        <label for="filterStatus" class="form-label" style="margin-bottom: 0; font-size: 0.8rem;">Estado:</label>
+        <select id="filterStatus" class="form-control" style="padding: 0.4rem 1.8rem 0.4rem 0.8rem; font-size: 0.85rem; width: auto;" onchange="applyFilters()">
+          <option value="Todos">Todos los estados</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En Proceso">En Proceso</option>
+          <option value="Resuelto">Resuelto</option>
+        </select>
+      </div>
+
+      <div class="filter-input-group">
+        <label for="filterType" class="form-label" style="margin-bottom: 0; font-size: 0.8rem;">Tipo de Solicitud:</label>
+        <select id="filterType" class="form-control" style="padding: 0.4rem 1.8rem 0.4rem 0.8rem; font-size: 0.85rem; width: auto;" onchange="applyFilters()">
+          <option value="Todos">Todos los tipos</option>
+          <option value="Falla de Red/Internet">Falla de Red / Internet</option>
+          <option value="Reparación de Hardware">Reparación de Hardware</option>
+          <option value="Soporte de iPads">Soporte de iPads</option>
+          <option value="Instalación de Software">Instalación de Software</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tabla Principal de Gestión -->
+    <div class="card" style="padding: 0;">
+      <div class="table-wrapper">
+        <table class="custom-table" id="adminTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha / Hora</th>
+              <th>Usuario</th>
+              <th>Ubicación</th>
+              <th>Tipo de Solicitud</th>
+              <th>Descripción</th>
+              <th style="width: 160px;">Cambiar Estado</th>
+              <th>Atención / Chat</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="8" class="text-center" style="color: var(--text-muted); padding: 2rem;">
+                Cargando incidencias de la base de datos...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Configuración segura cargada en código de backend -->
+
+  <!-- Modal: Registro Manual de Incidencia -->
+  <div id="createModal" class="modal">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Incidencia Manualmente</h3>
+        <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+      </div>
+      <form id="manualTicketForm" onsubmit="handleManualSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="manualUser" class="form-label">Usuario que reporta (Maestro / Administrativo)</label>
+            <select id="manualUser" class="form-control" required>
+              <option value="" disabled selected>Seleccione un docente...</option>
+              <!-- Cargado dinámicamente con JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="manualLocation" class="form-label">Ubicación / Salón / Aula</label>
+            <input type="text" id="manualLocation" class="form-control" placeholder="Ej. Aula de Computo B, Biblioteca" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="manualType" class="form-label">Tipo de Solicitud</label>
+            <select id="manualType" class="form-control" required>
+              <option value="" disabled selected>Seleccione una opción...</option>
+              <option value="Falla de Red/Internet">Falla de Red / Internet</option>
+              <option value="Reparación de Hardware">Reparación de Hardware</option>
+              <option value="Soporte de iPads">Soporte de iPads</option>
+              <option value="Instalación de Software">Instalación de Software</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="manualDescription" class="form-label">Descripción del Problema</label>
+            <textarea id="manualDescription" class="form-control" placeholder="Detalles de la incidencia..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeCreateModal()">Cancelar</button>
+          <button type="submit" id="submitManualBtn" class="btn btn-accent">Guardar Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Chat Soporte -->
+  <div id="chatModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="chatModalTitle">Atender y Chatear con Docente</h3>
+        <button class="modal-close" onclick="closeChat()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-container">
+          <div class="chat-history" id="chatHistoryContainer">
+            <!-- Burbujas de chat se cargan aquí -->
+          </div>
+          <div class="chat-footer">
+            <input type="text" id="chatMessageInput" class="chat-input" placeholder="Escribe un mensaje o indicación técnica..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
+            <button id="sendChatBtn" class="btn btn-primary" onclick="sendChatMessage()" style="padding: 0.5rem 1rem;">Enviar</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeChat()">Cerrar Chat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor para Notificaciones Toast flotantes -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JS de Administración -->
+  <script>
+    // Listado de docentes autorizados del Colegio Mexicano
+    const DOCENTES_AUTORIZADOS = [
+      "María Eugenia Morales",
+      "José Rolando Mendoza",
+      "Nadia Gisela Navarro",
+      "Francisca Viridiana García",
+      "Glenda Atzimba Sánchez",
+      "Zuleyma Aideth Rivera",
+      "Armando Hernández",
+      "Carmina Rodríguez",
+      "Noé Guillermo Segovia",
+      "Erasmo Rivera",
+      "Noel Pérez Enríquez",
+      "Carlos Eduardo Gómez",
+      "Cristel Sobrevilla Rodríguez",
+      "Osagie Omoregie",
+      "Alejandra Deniss Reyes",
+      "Irvin Fernando Rojas",
+      "Amanda Berman",
+      "Tiffany Tiaré Tovías",
+      "Martha Castillo",
+      "María del Carmen Rodríguez",
+      "Leslie",
+      "Octavio Adalberto Santa Cruz",
+      "Itzel Elizondo Salinas",
+      "Martha Laura Hernández",
+      "Lesly Simbrón Zepeta",
+      "Hannia Montejo Sánchez",
+      "Edgar Ruiz",
+      "Ing. Segovia",
+      "Ing. Alberto",
+      "Ruth Camareno"
+    ];
+
+    // Variables globales
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbyeIiuh20VxyJFaH9mZ8ZUcLQ2R9Sqasn9btM98zAyT8-5EGtcParXpHzBkt0rddbEQ/exec';
+    let ticketsList = []; // Lista total cargada de GAS
+    let pollInterval = null;
+    let chatInterval = null;
+    let activeChatTicketId = null;
+    const supportName = 'Soporte TI'; // Nombre del emisor de mensajes desde el dashboard
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Poblar el dropdown de docentes para registro manual
+      populateDocentesDropdown();
+      
+      // Iniciar el tablero de administración
+      initializeAdminDashboard();
+    });
+
+    // Iniciar polling
+    function initializeAdminDashboard() {
+      fetchTickets();
+      
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(() => {
+        fetchTickets(false);
+      }, 15000);
+    }
+
+    // Poblar dropdown de registro manual
+    function populateDocentesDropdown() {
+      const selectEl = document.getElementById('manualUser');
+      if (!selectEl) return;
+      
+      selectEl.innerHTML = '<option value="" disabled selected>Seleccione un docente...</option>';
+      
+      // Ordenar alfabéticamente
+      const sortedDocentes = [...DOCENTES_AUTORIZADOS].sort((a, b) => a.localeCompare(b));
+      
+      sortedDocentes.forEach(docente => {
+        const option = document.createElement('option');
+        option.value = docente;
+        option.textContent = docente;
+        selectEl.appendChild(option);
+      });
+    }
+
+    // Modal de Registro Manual
+    function openCreateModal() {
+      document.getElementById('createModal').classList.add('show');
+    }
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.remove('show');
+      document.getElementById('manualTicketForm').reset();
+    }
+
+    // Enviar Registro de Ticket Manual (POST create)
+    function handleManualSubmit(event) {
+      event.preventDefault();
+      
+      if (!apiUrl) {
+        alert('Configura la URL de la API antes de enviar.');
+        return;
+      }
+
+      const user = document.getElementById('manualUser').value.trim();
+      const location = document.getElementById('manualLocation').value.trim();
+      const type = document.getElementById('manualType').value;
+      const description = document.getElementById('manualDescription').value.trim();
+      const submitBtn = document.getElementById('submitManualBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Guardando...';
+
+      const payload = {
+        action: 'create',
+        usuario: user,
+        ubicacion: location,
+        tipoSolicitud: type,
+        descripcion: description
+      };
+
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error en el servidor.");
+          return response.json();
+        })
+        .then(result => {
+          if (result.success) {
+            showToast('✅ Ticket registrado manualmente con éxito.');
+            closeCreateModal();
+            fetchTickets(false);
+          } else {
+            alert('Error del script: ' + result.error);
+          }
+        })
+        .catch(err => {
+          console.error("Error al registrar:", err);
+          alert('Hubo un error al conectar con Google Sheets.');
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Guardar Ticket';
+        });
+    }
+
+    // Obtener todos los tickets de Google Sheets
+    function fetchTickets(showLoading = true) {
+      if (!apiUrl) return;
+
+      const tableBody = document.getElementById('adminTableBody');
+      if (showLoading && ticketsList.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center" style="padding: 2rem;">
+              <div>⌛ Conectando con Google Sheets...</div>
+            </td>
+          </tr>
+        `;
+      }
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) throw new Error("Error al consultar la API.");
+          return response.json();
+        })
+        .then(data => {
+          if (data && data.success === false) {
+            throw new Error(data.error || "Ocurrió un error en el servidor.");
+          }
+
+          ticketsList = Array.isArray(data) ? data : [];
+          
+          // Renderizar métricas globales
+          renderStats(ticketsList);
+          
+          // Aplicar filtros de la barra superior sobre el listado actual
+          applyFilters();
+
+          // Si el modal de chat está abierto, refrescar el historial
+          if (activeChatTicketId !== null) {
+            renderChat(activeChatTicketId);
+          }
+        })
+        .catch(err => {
+          console.error("Error al obtener datos:", err);
+          if (ticketsList.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="8" class="text-center" style="color: #ef4444; padding: 2rem; font-weight: 600;">
+                  ⚠️ Error al conectar con Google Sheets. Comprueba la configuración de la URL.
+                </td>
+              </tr>
+            `;
+          }
+        });
+    }
+
+    // Mostrar estadísticas generales
+    function renderStats(tickets) {
+      const total = tickets.length;
+      const pending = tickets.filter(t => t.estado === 'Pendiente').length;
+      const process = tickets.filter(t => t.estado === 'En Proceso').length;
+      const resolved = tickets.filter(t => t.estado === 'Resuelto').length;
+
+      document.getElementById('statTotal').innerText = total;
+      document.getElementById('statPending').innerText = pending;
+      document.getElementById('statProcess').innerText = process;
+      document.getElementById('statResolved').innerText = resolved;
+    }
+
+    // Aplicar filtros e inyectar filas en la tabla
+    function applyFilters() {
+      const searchValue = document.getElementById('filterSearch').value.toLowerCase().trim();
+      const statusValue = document.getElementById('filterStatus').value;
+      const typeValue = document.getElementById('filterType').value;
+
+      // Filtrar array completo
+      let filtered = ticketsList.filter(ticket => {
+        // Filtro de Texto
+        const matchesSearch = !searchValue || 
+                              (ticket.usuario && ticket.usuario.toLowerCase().includes(searchValue)) ||
+                              (ticket.ubicacion && ticket.ubicacion.toLowerCase().includes(searchValue)) ||
+                              (ticket.descripcion && ticket.descripcion.toLowerCase().includes(searchValue));
+        
+        // Filtro de Estado
+        const matchesStatus = statusValue === 'Todos' || ticket.estado === statusValue;
+        
+        // Filtro de Tipo
+        const matchesType = typeValue === 'Todos' || ticket.tipoSolicitud === typeValue;
+
+        return matchesSearch && matchesStatus && matchesType;
+      });
+
+      // Ordenar por ID descendente (los más recientes arriba)
+      filtered.sort((a, b) => b.id - a.id);
+
+      renderTableRows(filtered);
+    }
+
+    // Dibujar las filas en el tbody
+    function renderTableRows(tickets) {
+      const tableBody = document.getElementById('adminTableBody');
+      if (tickets.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center" style="color: var(--text-muted); padding: 2rem;">
+              No se encontraron tickets con los filtros seleccionados.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = tickets.map(ticket => {
+        const dateStr = ticket.fechaHora ? new Date(ticket.fechaHora).toLocaleString('es-MX', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        }) : '---';
+
+        // Definir clases CSS de select según estado
+        let selectClass = 'select-pendiente';
+        if (ticket.estado === 'En Proceso') selectClass = 'select-proceso';
+        else if (ticket.estado === 'Resuelto') selectClass = 'select-resuelto';
+
+        // Botón de chat visible solo para "En Proceso"
+        const chatButton = ticket.estado === 'En Proceso'
+          ? `<button class="btn btn-chat" onclick="openChat(${ticket.id})">🛠️ Atender / Chat</button>`
+          : `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No aplica (Requiere 'En Proceso')</span>`;
+
+        return `
+          <tr>
+            <td style="font-weight: 700;">#${ticket.id}</td>
+            <td>${dateStr}</td>
+            <td style="font-weight: 600;">${ticket.usuario}</td>
+            <td>${ticket.ubicacion}</td>
+            <td style="font-weight: 600; color: var(--primary-accent);">${ticket.tipoSolicitud}</td>
+            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ticket.descripcion}">
+              ${ticket.descripcion}
+            </td>
+            <td>
+              <select class="status-select ${selectClass}" onchange="updateTicketStatus(${ticket.id}, this.value)">
+                <option value="Pendiente" ${ticket.estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="En Proceso" ${ticket.estado === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                <option value="Resuelto" ${ticket.estado === 'Resuelto' ? 'selected' : ''}>Resuelto</option>
+              </select>
+            </td>
+            <td>${chatButton}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Actualizar Estado en Google Sheets (POST update_status)
+    function updateTicketStatus(id, newStatus) {
+      if (!apiUrl) {
+        alert('Configura la URL de la API de Apps Script.');
+        return;
+      }
+
+      const payload = {
+        action: 'update_status',
+        id: id,
+        estado: newStatus
+      };
+
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error de red.");
+          return response.json();
+        })
+        .then(result => {
+          if (result.success) {
+            showToast(`✅ Ticket #${id} actualizado a "${newStatus}" correctamente.`);
+            
+            // Actualizar localmente la lista en lugar de hacer un fetch con reload completo
+            const ticket = ticketsList.find(t => t.id === id);
+            if (ticket) ticket.estado = newStatus;
+            
+            // Re-aplicar filtros
+            applyFilters();
+          } else {
+            alert('Error al actualizar estado: ' + result.error);
+          }
+        })
+        .catch(err => {
+          console.error("Error al actualizar:", err);
+          alert('Hubo un error al conectar con Google Sheets.');
+        });
+    }
+
+    // Abrir modal de chat
+    function openChat(ticketId) {
+      activeChatTicketId = ticketId;
+      const ticket = ticketsList.find(t => t.id === ticketId);
+      const user = ticket ? ticket.usuario : 'Docente';
+      
+      document.getElementById('chatModalTitle').innerText = `Atender Ticket #${ticketId} (Docente: ${user})`;
+      document.getElementById('chatModal').classList.add('show');
+      
+      renderChat(ticketId);
+
+      // Iniciar polling rápido de chat
+      if (chatInterval) clearInterval(chatInterval);
+      chatInterval = setInterval(() => {
+        fetchTickets(false);
+      }, 5000);
+    }
+
+    // Cerrar modal de chat
+    function closeChat() {
+      activeChatTicketId = null;
+      if (chatInterval) {
+        clearInterval(chatInterval);
+        chatInterval = null;
+      }
+      document.getElementById('chatModal').classList.remove('show');
+      document.getElementById('chatMessageInput').value = '';
+    }
+
+    // Renderizar mensajes
+    function renderChat(ticketId) {
+      const chatContainer = document.getElementById('chatHistoryContainer');
+      const ticket = ticketsList.find(t => t.id === ticketId);
+
+      if (!ticket) {
+        chatContainer.innerHTML = '<div class="text-center" style="color: var(--text-muted); padding: 2rem;">No se encontraron los datos del ticket.</div>';
+        return;
+      }
+
+      const chatHistory = ticket.historialChat || [];
+
+      if (chatHistory.length === 0) {
+        chatContainer.innerHTML = `
+          <div class="text-center" style="color: var(--text-muted); padding: 2rem; font-style: italic; font-size: 0.9rem;">
+            Sin historial de chat. Envía las indicaciones de soporte técnico para iniciar el diálogo.
+          </div>
+        `;
+        return;
+      }
+
+      chatContainer.innerHTML = chatHistory.map(msg => {
+        const isOwn = msg.remitente && msg.remitente.toLowerCase().trim() === supportName.toLowerCase().trim();
+        const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('es-MX', {
+          hour: '2-digit', minute: '2-digit'
+        }) : '';
+
+        return `
+          <div class="chat-bubble ${isOwn ? 'own' : 'other'}">
+            <span class="chat-sender">${isOwn ? 'Tú (Soporte)' : msg.remitente}</span>
+            <span class="chat-text">${msg.mensaje}</span>
+            <span class="chat-time">${timeStr}</span>
+          </div>
+        `;
+      }).join('');
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Enviar mensaje (POST add_message)
+    function sendChatMessage() {
+      const inputEl = document.getElementById('chatMessageInput');
+      const message = inputEl.value.trim();
+      const sendBtn = document.getElementById('sendChatBtn');
+
+      if (!message) return;
+      if (!apiUrl || activeChatTicketId === null) return;
+
+      inputEl.disabled = true;
+      sendBtn.disabled = true;
+
+      const payload = {
+        action: 'add_message',
+        id: activeChatTicketId,
+        remitente: supportName,
+        mensaje: message
+      };
+
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error de comunicación.");
+          return response.json();
+        })
+        .then(result => {
+          if (result.success) {
+            inputEl.value = '';
+            
+            // Actualizar localmente
+            const ticket = ticketsList.find(t => t.id === activeChatTicketId);
+            if (ticket) ticket.historialChat = result.chat;
+            
+            renderChat(activeChatTicketId);
+          } else {
+            alert('Error al enviar el mensaje: ' + result.error);
+          }
+        })
+        .catch(err => {
+          console.error("Error al enviar mensaje:", err);
+          alert('Hubo un problema al enviar el mensaje de chat.');
+        })
+        .finally(() => {
+          inputEl.disabled = false;
+          sendBtn.disabled = false;
+          inputEl.focus();
+        });
+    }
+
+    // Toast flotante
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <div class="toast-body">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
