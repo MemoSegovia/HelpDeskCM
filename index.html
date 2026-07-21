@@ -206,10 +206,16 @@
       "Ruth Camareno"
     ];
 
+    // Ciberseguridad: Cadenas ofuscadas en Base64 para prevenir lectura directa en DevTools
+    const obfUrl = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5ZUlidWgyMFZ4eUpGYUg5bVo4WlVjTFEyUjlTcWFzbjlidE05OHpBeVQ4LTVFR3RjUGFYcEh6Qmt0MHJkZGJFUS9leGVj';
+    const obfToken = 'Q00tSGVscGRlc2stVG9rZW4tU2VndXJpZGFkLUNvbGVnaW9NZXhpY2Fuby0yMDI2';
+    
+    // Decodificación en memoria a tiempo de ejecución
+    const apiUrl = atob(obfUrl);
+    const apiToken = atob(obfToken);
+
     // Variables globales
     let currentUser = null;
-    // URL de la API de Apps Script guardada de forma segura/oculta en el código
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbyeIiuh20VxyJFaH9mZ8ZUcLQ2R9Sqasn9btM98zAyT8-5EGtcParXpHzBkt0rddbEQ/exec';
     let knownTicketStatuses = {}; // Guarda estados de tickets cargados anteriormente
     let isFirstLoad = true;
     let activeChatTicketId = null;
@@ -234,6 +240,35 @@
       document.getElementById('loginBtn').addEventListener('click', handleLogin);
       document.getElementById('logoutBtn').addEventListener('click', handleLogout);
       document.getElementById('newTicketForm').addEventListener('submit', handleCreateTicket);
+
+      // Ciberseguridad: Bloqueos de Inspección en Cliente
+      document.addEventListener('contextmenu', e => e.preventDefault()); // Desactivar click derecho
+      
+      document.addEventListener('keydown', e => {
+        // Bloquear F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U
+        if (
+          e.key === 'F12' || 
+          (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(e.key.toUpperCase())) ||
+          (e.ctrlKey && e.key.toUpperCase() === 'U')
+        ) {
+          e.preventDefault();
+          showToast('⚠️ Acción no permitida por políticas de ciberseguridad.');
+        }
+      });
+
+      // Trampa de Debugger loop en segundo plano
+      setInterval(() => {
+        (function() {
+          (function trap(i) {
+            if (("" + i / i).length !== 1 || i % 20 === 0) {
+              (function() {}).constructor("debugger")();
+            } else {
+              (function() {}).constructor("debugger")();
+            }
+            trap(++i);
+          })(0);
+        })();
+      }, 500);
     });
 
     // Manejar Inicio de Sesión
@@ -327,8 +362,8 @@
         `;
       }
 
-      // Hacemos el GET al script
-      fetch(apiUrl)
+      // Hacemos el GET al script enviando el token de seguridad
+      fetch(`${apiUrl}?token=${encodeURIComponent(apiToken)}`)
         .then(response => {
           if (!response.ok) throw new Error("Error en la petición de datos.");
           return response.json();
@@ -459,6 +494,7 @@
 
       const payload = {
         action: 'create',
+        token: apiToken, // Incluir token en payload POST
         usuario: currentUser,
         ubicacion: location,
         tipoSolicitud: type,
@@ -616,6 +652,7 @@
 
       const payload = {
         action: 'add_message',
+        token: apiToken, // Incluir token en payload POST
         id: activeChatTicketId,
         remitente: currentUser,
         mensaje: message

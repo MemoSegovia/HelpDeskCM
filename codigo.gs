@@ -12,8 +12,17 @@
  * G: Historial de Chat (Texto JSON)
  */
 
-function doGet() {
+// Token de seguridad secreto compartido entre el frontend y el backend
+const SECURITY_TOKEN = "CM-Helpdesk-Token-Seguridad-ColegioMexicano-2026";
+
+function doGet(e) {
   try {
+    // Validar token de seguridad en la consulta GET
+    const token = e && e.parameter && e.parameter.token;
+    if (token !== SECURITY_TOKEN) {
+      return createJsonResponse({ success: false, error: 'Acceso no autorizado.' });
+    }
+
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
     const lastRow = sheet.getLastRow();
     
@@ -34,8 +43,8 @@ function doGet() {
         if (row[6]) {
           chatHistory = JSON.parse(row[6]);
         }
-      } catch (e) {
-        console.error("Error al parsear el chat en la fila " + rowIndex + ": " + e.message);
+      } catch (err) {
+        console.error("Error al parsear el chat en la fila " + rowIndex + ": " + err.message);
       }
       
       return {
@@ -63,8 +72,15 @@ function doPost(e) {
       return createJsonResponse({ success: false, error: 'No se recibieron datos (payload vacío).' });
     }
     
-    // Parsear el contenido recibido en texto plano para evadir restricciones de preflight CORS
+    // Parsear el contenido recibido en texto plano
     const payload = JSON.parse(e.postData.contents);
+    
+    // Validar token de seguridad en la solicitud POST
+    const token = payload && payload.token;
+    if (token !== SECURITY_TOKEN) {
+      return createJsonResponse({ success: false, error: 'Acceso no autorizado.' });
+    }
+
     const action = payload.action;
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
     
