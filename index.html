@@ -392,7 +392,12 @@
     // Renderizar la tabla con los reportes propios
     function renderTicketsTable(tickets) {
       const tableBody = document.getElementById('ticketsTableBody');
-      if (tickets.length === 0) {
+      
+      // Filtrar tickets ocultados localmente por el docente
+      const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
+      const visibleTickets = tickets.filter(t => !hiddenTickets.includes(t.id));
+
+      if (visibleTickets.length === 0) {
         tableBody.innerHTML = `
           <tr>
             <td colspan="7" class="text-center" style="color: var(--text-muted); padding: 2rem;">
@@ -404,7 +409,7 @@
       }
 
       // Ordenar por ID descendente (los más nuevos primero)
-      const sortedTickets = [...tickets].sort((a, b) => b.id - a.id);
+      const sortedTickets = [...visibleTickets].sort((a, b) => b.id - a.id);
 
       tableBody.innerHTML = sortedTickets.map(ticket => {
         const dateStr = ticket.fechaHora ? new Date(ticket.fechaHora).toLocaleString('es-MX', {
@@ -421,6 +426,9 @@
           ? `<button class="btn btn-chat" onclick="openChat(${ticket.id})">💬 Abrir Chat</button>`
           : `<span style="color: var(--text-muted); font-size: 0.8rem;">Chat no disponible</span>`;
 
+        // Botón de ocultar local
+        const deleteButton = `<button class="btn" style="padding: 0.25rem 0.5rem; background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;" onclick="hideTicket(${ticket.id})" title="Ocultar de la vista (No borra en Google Sheets)">🗑️</button>`;
+
         return `
           <tr>
             <td style="font-weight: 700;">#${ticket.id}</td>
@@ -431,10 +439,28 @@
               ${ticket.descripcion}
             </td>
             <td><span class="badge ${badgeClass}">${ticket.estado}</span></td>
-            <td>${chatButton}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                ${chatButton}
+                ${deleteButton}
+              </div>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    // Ocultar ticket localmente sin borrar de Google Sheets
+    function hideTicket(id) {
+      if (confirm(`¿Deseas ocultar el ticket #${id} de esta pantalla? (No se eliminará de Google Sheets)`)) {
+        const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
+        if (!hiddenTickets.includes(id)) {
+          hiddenTickets.push(id);
+          localStorage.setItem('helpdesk_hidden_tickets', JSON.stringify(hiddenTickets));
+        }
+        renderTicketsTable(currentTicketsList);
+        showToast(`✅ Ticket #${id} ocultado de la vista local.`);
+      }
     }
 
     // Enviar Reporte de Incidencia (POST create)

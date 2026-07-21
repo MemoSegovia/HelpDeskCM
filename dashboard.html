@@ -8,6 +8,22 @@
 </head>
 <body>
 
+  <!-- Overlay de Inicio de Sesión de Soporte -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <span class="login-logo">🛠️</span>
+      <h2 class="login-title">Helpdesk CM - TI</h2>
+      <p class="login-subtitle">Colegio Mexicano - Tablero de Soporte</p>
+      
+      <div class="form-group">
+        <label for="usernameInput" class="form-label">Nombre del Técnico / Administrador</label>
+        <input type="text" id="usernameInput" class="form-control" placeholder="Ej. Edgar Ruiz" required>
+      </div>
+      
+      <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Ingresar al Panel</button>
+    </div>
+  </div>
+
   <!-- Navegación Principal -->
   <nav class="navbar">
     <div class="navbar-content">
@@ -18,7 +34,11 @@
         </div>
       </div>
       <div class="user-profile">
-        <span class="user-name" id="displayUsername">👤 Personal Técnico (Sistemas)</span>
+        <span class="user-name" id="displayUsername">👤 Cargando...</span>
+        <a href="https://docs.google.com/spreadsheets/d/1xMjakZqisiH4YVy2DyxtJw8WiTXZa_v9AsyxbwgtPC4/edit?gid=0#gid=0" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.25rem;" title="Abrir base de datos de Google Sheets">
+          📊 Ver Excel
+        </a>
+        <button id="logoutBtn" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="handleLogout()">Cerrar Sesión</button>
       </div>
     </div>
   </nav>
@@ -199,24 +219,32 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeChat()">Cerrar Chat</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Contenedor para Notificaciones Toast flotantes -->
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Overlay de Login -->
+  <div id="loginOverlay" class="modal show" style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 9999;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+      <h3>Acceso al Panel Técnico</h3>
+      <p>Identifícate para gestionar las incidencias:</p>
+      <input type="text" id="usernameInput" class="form-control" placeholder="Ingresa tu nombre..." style="margin-bottom: 1rem;">
+      <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Entrar al Sistema</button>
+    </div>
+  </div>
 
   <!-- JS de Administración -->
   <script>
     // Ciberseguridad: Cadenas ofuscadas en Base64 para prevenir lectura directa en DevTools
     const obfUrl = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5ZUlpdWgyMFZ4eUpGYUg5bVo4WlVjTFEyUjlTcWFzbjlidE05OHpBeVQ4LTVFR3RjUGFyWHBIekJrdDByZGRiRVEvZXhlYw==';
     const obfToken = 'Q00tSGVscGRlc2stVG9rZW4tU2VndXJpZGFkLUNvbGVnaW9NZXhpY2Fuby0yMDI2';
-    const obfDocentes = 'WyJNYXLDrWEgRXVnZW5pYSBNb3JhbGVzIiwiSm9zw6kgUm9sYW5kbyBNZW5kb3phIiwiTmFkaWEgR2lzZWxhIE5hdmFycm8iLCJGcmFuY2lzY2EgVmlyaWRpYW5hIEdhcmPDrWEiLCJHbGVuZGEgQXR6aW1iYSBTw6FuY2hleiIsIlp1bGV5bWEgQWlkZXRoIFJpdmVyYSIsIkFybWFuZG8gSGVybsOhbmRleiIsIkNhcm1pbmEgUm9kcsOtZ3VleiIsIk5vw6kgR3VpbGxlcm1vIFNlZ292aWEiLCJFcmFzbW8gUml2ZXJhIiwiTm9lbCBQw6lyZXogRW5yw61xdWV6IiwiQ2FybG9zIEVkdWFyZG8gR8OzbWV6IiwiQ3Jpc3RlbCBTb2JyZXZpbGxhIFJvZHLDrWd1ZXoiLCJPc2FnaWUgT21vcmVnaWUiLCJBbGVqYW5kcmEgRGVuaXNzIFJleWVzIiwiSXJ2aW4gRmVybmFuZG8gUm9qYXMiLCJBbWFuZGEgQmVybWFuIiwiVGlmZmFueSBUaWFyw6kgVG92w61hcyIsIk1hcnRoYSBDYXN0aWxsbyIsIk1hcsOtYSBkZWwgQ2FybWVuIFJvZHLDrWd1ZXoiLCJMZXNsaWUiLCJPY3RhdmlvIEFkYWxiZXJ0byBTYW50YSBDcnV6IiwiSXR6ZWwgRWxpem9uZG8gU2FsaW5hcyIsIk1hcnRoYSBMYXVyYSBIZXJuw6FuZGV6IiwiTGVzbHkgU2ltYnLDs24gWmVwZXRhIiwiSGFubmlhIE1vbnRlam8gU8OhbmNoZXoiLCJFZGdhciBSdWl6IiwiSW5nLiBTZWdvdmlhIiwiSW5nLiBBbGJlcnRvIiwiUnV0aCBDYW1hcmVubyJd';
+    const obfDocentes = 'WyJNYXLDrWEgRXVnZW5pYSBNb3JhbGVzIiwiSm9zw6kgUm9sYW5kbyBNZW5kb3phIiwiTmFkaWEgR2lzZWxhIE5hdmFycm8iLCJGcmFuY2lzY2EgVmlyaWRpYW5hIEdhcmPDrWEiLCJHbGVuZGEgQXR6aW1iYSBTw6FuY2hleiIsIlp1bGV5bWEgQWlkZXRoIFJpdmVyYSIsIkFybWFuZG8gSGVybsOhbmRleiIsIkNhcm1pbmEgUm9kcsOtZ3VleiIsIk5vw6kgR3VpbGxlcm1vIFNlZ292aWEiLCJFcmFzbW8gUml2ZXJhIiwiTm9lbCBQw6lyZXogRW5yw61xdWV6IiwiQ2FybG9zIEVkdWFyZG8gR8OzbWV6IiwiQ3Jpc3RlbCBTb2JyZXZpbGxhIFJvZHLDrWd1ZXoiLCJPc2FnaWUgT21vcmVnaWUiLCJBbGVqYW5kcmEgRGVuaXNzIFJleWVzIiwiSXJ2aW4gRmVybmFuZG8gUm9qYXMiLCJBbWFuZGEgQmVybWFuIiwiVGlmZmFueSBUaWFyw6kgVG92w61hcyIsIk1hcnRoYSBDYXN0aWxsbyIsIk1hcnRoYSBkZWwgQ2FybWVuIFJvZHLDrWd1ZXoiLCJMZXNsaWUiLCJPY3RhdmlvIEFkYWxiZXJ0byBTYW50YSBDcnV6IiwiSXR6ZWwgRWxpem9uZG8gU2FsaW5hcyIsIk1hcnRoYSBMYXVyYSBIZXJuw6FuZGV6IiwiTGVzbHkgU2ltYnLDs24gWmVwZXRhIiwiSGFubmlhIE1vbnRlam8gU8OhbmNoZXoiLCJFZGdhciBSdWl6IiwiSW5nLiBTZWdvdmlhIiwiSW5nLiBBbGJlcnRvIiwiUnV0aCBDYW1hcmVubyJd';
+    const obfTecnicos = 'WyJFZGdhciBSdWl6IiwiR3VpbGxlcm1vIFNlZ292aWEiLCJJbmcuIEFsYmVydG8iLCJNYXR0IFJhbmRhbGwiLCJJbmcuIFNlZ292aWEiXQ==';
 
-    // Decodificación en memoria a tiempo de ejecución (Crea el array de docentes de forma segura)
+    // Decodificación en memoria a tiempo de ejecución
     const apiUrl = atob(obfUrl);
     const apiToken = atob(obfToken);
     const DOCENTES_AUTORIZADOS = JSON.parse(decodeURIComponent(escape(atob(obfDocentes))));
+    const TECNICOS_AUTORIZADOS = JSON.parse(decodeURIComponent(escape(atob(obfTecnicos))));
 
     // Variables globales
     let ticketsList = []; // Lista total cargada de GAS
@@ -224,13 +252,26 @@
     let chatInterval = null;
     let activeChatTicketId = null;
     const supportName = 'Soporte TI'; // Nombre del emisor de mensajes desde el dashboard
+    let currentSupportUser = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Poblar el dropdown de docentes para registro manual
-      populateDocentesDropdown();
+      currentSupportUser = localStorage.getItem('helpdesk_tecnico') || '';
       
-      // Iniciar el tablero de administración
-      initializeAdminDashboard();
+      if (currentSupportUser) {
+        document.getElementById('loginOverlay').classList.add('d-none');
+        document.getElementById('displayUsername').innerText = `👤 ${currentSupportUser}`;
+        
+        // Poblar el dropdown de docentes para registro manual
+        populateDocentesDropdown();
+        
+        // Iniciar el tablero de administración
+        initializeAdminDashboard();
+      } else {
+        document.getElementById('loginOverlay').classList.remove('d-none');
+      }
+
+      // Event Listeners
+      document.getElementById('loginBtn').addEventListener('click', handleLogin);
 
       // Ciberseguridad: Bloqueos de Inspección en Cliente
       document.addEventListener('contextmenu', e => e.preventDefault()); // Desactivar click derecho
@@ -261,6 +302,43 @@
         })();
       }, 500);
     });
+
+    // Manejar Inicio de Sesión de Sistemas
+    function handleLogin() {
+      const username = document.getElementById('usernameInput').value.trim();
+      if (!username) {
+        alert("Por favor, ingresa tu nombre de técnico.");
+        return;
+      }
+
+      const matchedTecnico = TECNICOS_AUTORIZADOS.find(
+        t => t.toLowerCase().trim() === username.toLowerCase()
+      );
+
+      if (!matchedTecnico) {
+        alert("Acceso denegado: El nombre no figura como Personal Técnico autorizado.");
+        return;
+      }
+
+      currentSupportUser = matchedTecnico;
+      localStorage.setItem('helpdesk_tecnico', currentSupportUser);
+      document.getElementById('displayUsername').innerText = `👤 ${currentSupportUser}`;
+      document.getElementById('loginOverlay').classList.add('d-none');
+
+      // Poblar el dropdown de docentes para registro manual
+      populateDocentesDropdown();
+      
+      // Iniciar el tablero de administración
+      initializeAdminDashboard();
+    }
+
+    // Cerrar Sesión de Sistemas
+    function handleLogout() {
+      if (confirm('¿Cerrar sesión del Tablero Técnico?')) {
+        localStorage.removeItem('helpdesk_tecnico');
+        location.reload();
+      }
+    }
 
     // Iniciar polling
     function initializeAdminDashboard() {
@@ -428,8 +506,13 @@
       const statusValue = document.getElementById('filterStatus').value;
       const typeValue = document.getElementById('filterType').value;
 
+      // Ciberseguridad/Filtro local de tickets ocultados
+      const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
+
       // Filtrar array completo
       let filtered = ticketsList.filter(ticket => {
+        if (hiddenTickets.includes(ticket.id)) return false;
+
         // Filtro de Texto
         const matchesSearch = !searchValue || 
                               (ticket.usuario && ticket.usuario.toLowerCase().includes(searchValue)) ||
@@ -481,6 +564,9 @@
           ? `<button class="btn btn-chat" onclick="openChat(${ticket.id})">🛠️ Atender / Chat</button>`
           : `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No aplica (Requiere 'En Proceso')</span>`;
 
+        // Botón de ocultar local
+        const deleteButton = `<button class="btn" style="padding: 0.25rem 0.5rem; background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;" onclick="hideTicket(${ticket.id})" title="Ocultar de la vista (No borra en Google Sheets)">🗑️</button>`;
+
         return `
           <tr>
             <td style="font-weight: 700;">#${ticket.id}</td>
@@ -498,10 +584,28 @@
                 <option value="Resuelto" ${ticket.estado === 'Resuelto' ? 'selected' : ''}>Resuelto</option>
               </select>
             </td>
-            <td>${chatButton}</td>
+            <td>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                ${chatButton}
+                ${deleteButton}
+              </div>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    // Ocultar ticket localmente sin borrar de Google Sheets
+    function hideTicket(id) {
+      if (confirm(`¿Deseas ocultar el ticket #${id} de esta pantalla? (No se eliminará de Google Sheets)`)) {
+        const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
+        if (!hiddenTickets.includes(id)) {
+          hiddenTickets.push(id);
+          localStorage.setItem('helpdesk_hidden_tickets', JSON.stringify(hiddenTickets));
+        }
+        applyFilters();
+        showToast(`✅ Ticket #${id} ocultado de la vista local.`);
+      }
     }
 
     // Actualizar Estado en Google Sheets (POST update_status)
