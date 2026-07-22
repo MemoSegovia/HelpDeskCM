@@ -194,6 +194,14 @@
           </div>
 
           <div class="form-group">
+            <label for="manualTechnician" class="form-label">Técnico / Administrador que atiende</label>
+            <select id="manualTechnician" class="form-control" required>
+              <option value="" disabled selected>Seleccione un técnico...</option>
+              <!-- Cargado dinámicamente con JavaScript -->
+            </select>
+          </div>
+
+          <div class="form-group">
             <label for="manualAttentionTime" class="form-label">Hora de Atención</label>
             <input type="datetime-local" id="manualAttentionTime" class="form-control" required>
           </div>
@@ -375,7 +383,7 @@
       }, 15000);
     }
 
-    // Poblar dropdown de registro manual
+    // Poblar dropdown de docentes de registro manual
     function populateDocentesDropdown() {
       const selectEl = document.getElementById('manualUser');
       if (!selectEl) return;
@@ -393,6 +401,27 @@
       });
     }
 
+    // Poblar dropdown de técnicos de registro manual
+    function populateTecnicosDropdown() {
+      const selectEl = document.getElementById('manualTechnician');
+      if (!selectEl) return;
+      
+      selectEl.innerHTML = '<option value="" disabled>Seleccione un técnico...</option>';
+      
+      const sortedTecnicos = [...TECNICOS_AUTORIZADOS].sort((a, b) => a.localeCompare(b));
+      
+      sortedTecnicos.forEach(tecnico => {
+        const option = document.createElement('option');
+        option.value = tecnico;
+        option.textContent = tecnico;
+        selectEl.appendChild(option);
+      });
+
+      if (currentSupportUser && sortedTecnicos.includes(currentSupportUser)) {
+        selectEl.value = currentSupportUser;
+      }
+    }
+
     // Modal de Registro Manual
     function openCreateModal() {
       const timeInput = document.getElementById('manualAttentionTime');
@@ -401,6 +430,7 @@
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         timeInput.value = now.toISOString().slice(0, 16);
       }
+      populateTecnicosDropdown();
       document.getElementById('createModal').classList.add('show');
     }
 
@@ -419,6 +449,8 @@
       }
 
       const user = document.getElementById('manualUser').value.trim();
+      const techSelect = document.getElementById('manualTechnician');
+      const technician = techSelect ? techSelect.value.trim() : currentSupportUser;
       const attentionTime = document.getElementById('manualAttentionTime').value;
       const location = document.getElementById('manualLocation').value.trim();
       const type = document.getElementById('manualType').value;
@@ -432,7 +464,7 @@
         action: 'create',
         token: apiToken, // Incluir token en payload POST
         usuario: user,
-        tecnico: currentSupportUser, // Técnico que registró/atendió la solicitud
+        tecnico: technician || currentSupportUser, // Técnico que registró/atendió la solicitud
         fechaHora: attentionTime ? new Date(attentionTime).toISOString() : new Date().toISOString(),
         ubicacion: location,
         tipoSolicitud: type,
