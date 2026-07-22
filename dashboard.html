@@ -863,12 +863,7 @@
             <td style="font-weight: 700;">#${ticket.id}</td>
             <td>${dateStr}</td>
             <td style="font-weight: 600;">${ticket.usuario}</td>
-            <td>
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.35rem;">
-                ${tecnicoDisplay}
-                ${editButton}
-              </div>
-            </td>
+            <td>${tecnicoDisplay}</td>
             <td>${ticket.ubicacion}</td>
             <td style="font-weight: 600; color: var(--primary-accent);">${ticket.tipoSolicitud}</td>
             <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ticket.descripcion}">
@@ -884,7 +879,10 @@
             <td>
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                 ${chatButton}
-                ${deleteButton}
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                  ${editButton}
+                  ${deleteButton}
+                </div>
               </div>
             </td>
           </tr>
