@@ -10,6 +10,7 @@
  * E: Descripción del Problema
  * F: Estado (Pendiente / En Proceso / Resuelto)
  * G: Historial de Chat (Texto JSON)
+ * H: Técnico / Atendido Por
  */
 
 // Token de seguridad secreto compartido entre el frontend y el backend
@@ -31,8 +32,8 @@ function doGet(e) {
       return createJsonResponse([]);
     }
     
-    // Obtener los datos desde la fila 2 hasta la última, cubriendo las 7 columnas
-    const dataRange = sheet.getRange(2, 1, lastRow - 1, 7);
+    // Obtener los datos desde la fila 2 hasta la última, cubriendo las 8 columnas
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, 8);
     const values = dataRange.getValues();
     
     const tickets = values.map((row, index) => {
@@ -55,7 +56,8 @@ function doGet(e) {
         tipoSolicitud: row[3],
         descripcion: row[4],
         estado: row[5] || 'Pendiente',
-        historialChat: chatHistory
+        historialChat: chatHistory,
+        tecnico: row[7] || ''
       };
     });
     
@@ -85,15 +87,22 @@ function doPost(e) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
     
     if (action === 'create') {
-      const fechaHora = new Date();
+      let fechaHora = new Date();
+      if (payload.fechaHora) {
+        fechaHora = new Date(payload.fechaHora);
+        if (isNaN(fechaHora.getTime())) {
+          fechaHora = payload.fechaHora;
+        }
+      }
       const usuario = payload.usuario || '';
       const ubicacion = payload.ubicacion || '';
       const tipoSolicitud = payload.tipoSolicitud || '';
       const descripcion = payload.descripcion || '';
-      const estado = 'Pendiente';
+      const estado = payload.estado || 'Pendiente';
       const historialChat = JSON.stringify([]); // Iniciar historial como string de array vacío
+      const tecnico = payload.tecnico || '';
       
-      sheet.appendRow([fechaHora, usuario, ubicacion, tipoSolicitud, descripcion, estado, historialChat]);
+      sheet.appendRow([fechaHora, usuario, ubicacion, tipoSolicitud, descripcion, estado, historialChat, tecnico]);
       
       // Obtener el índice de la fila recién insertada
       const newRowId = sheet.getLastRow();
@@ -107,6 +116,7 @@ function doPost(e) {
     } else if (action === 'update_status') {
       const id = parseInt(payload.id);
       const newStatus = payload.estado;
+      const tecnico = payload.tecnico;
       
       if (isNaN(id) || id < 2) {
         return createJsonResponse({ success: false, error: 'ID de ticket inválido.' });
@@ -118,9 +128,28 @@ function doPost(e) {
       // La columna 6 es la F (Estado)
       sheet.getRange(id, 6).setValue(newStatus);
       
+      // Si se proporciona el técnico asignado / que atiende (Columna 8 / H)
+      if (tecnico) {
+        sheet.getRange(id, 8).setValue(tecnico);
+      }
+      
       return createJsonResponse({ 
         success: true, 
         message: 'Estado actualizado correctamente a: ' + newStatus 
+      });
+      
+    } else if (action === 'delete') {
+      const id = parseInt(payload.id);
+      
+      if (isNaN(id) || id < 2 || id > sheet.getLastRow()) {
+        return createJsonResponse({ success: false, error: 'ID de ticket inválido.' });
+      }
+      
+      sheet.deleteRow(id);
+      
+      return createJsonResponse({ 
+        success: true, 
+        message: 'Ticket #' + id + ' eliminado exitosamente de Google Sheets.' 
       });
       
     } else if (action === 'add_message') {

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tablero de Soporte - Helpdesk CM</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -91,6 +92,28 @@
       </div>
     </div>
 
+    <!-- Filtro de Periodo Temporal (Día, Semana, Mes, Todos) -->
+    <div class="period-filter-card">
+      <span class="period-filter-label">📅 Periodo Visualizado:</span>
+      <div class="period-pills">
+        <button type="button" class="period-pill" data-period="dia" onclick="setPeriodFilter('dia')">Día</button>
+        <button type="button" class="period-pill active" data-period="semana" onclick="setPeriodFilter('semana')">Semana</button>
+        <button type="button" class="period-pill" data-period="mes" onclick="setPeriodFilter('mes')">Mes</button>
+        <button type="button" class="period-pill" data-period="todos" onclick="setPeriodFilter('todos')">Todos</button>
+      </div>
+    </div>
+
+    <!-- Gráfica Visual de Tipo de Solicitud y Cantidad de Casos -->
+    <div class="card chart-card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <h3 class="card-title" style="margin-bottom: 0; border: none; padding: 0;">📊 Incidencias por Tipo de Solicitud</h3>
+        <span id="chartPeriodBadge" class="badge badge-process" style="font-size: 0.75rem;">Vista Semanal</span>
+      </div>
+      <div style="position: relative; height: 260px; width: 100%;">
+        <canvas id="ticketsChart"></canvas>
+      </div>
+    </div>
+
     <!-- Filtros de búsqueda rápidos (Premium UX) -->
     <div class="filters-row">
       <div class="filter-input-group">
@@ -130,6 +153,7 @@
               <th>ID</th>
               <th>Fecha / Hora</th>
               <th>Usuario</th>
+              <th>Técnico</th>
               <th>Ubicación</th>
               <th>Tipo de Solicitud</th>
               <th>Descripción</th>
@@ -139,7 +163,7 @@
           </thead>
           <tbody id="adminTableBody">
             <tr>
-              <td colspan="8" class="text-center" style="color: var(--text-muted); padding: 2rem;">
+              <td colspan="9" class="text-center" style="color: var(--text-muted); padding: 2rem;">
                 Cargando incidencias de la base de datos...
               </td>
             </tr>
@@ -162,11 +186,16 @@
       <form id="manualTicketForm" onsubmit="handleManualSubmit(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label for="manualUser" class="form-label">Usuario que reporta (Maestro / Administrativo)</label>
+            <label for="manualUser" class="form-label">Persona a la que se le dio el soporte (Docente / Administrativo)</label>
             <select id="manualUser" class="form-control" required>
-              <option value="" disabled selected>Seleccione un docente...</option>
+              <option value="" disabled selected>Seleccione la persona atendida...</option>
               <!-- Cargado dinámicamente con JavaScript -->
             </select>
+          </div>
+
+          <div class="form-group">
+            <label for="manualAttentionTime" class="form-label">Hora de Atención</label>
+            <input type="datetime-local" id="manualAttentionTime" class="form-control" required>
           </div>
           
           <div class="form-group">
@@ -247,6 +276,8 @@
     let activeChatTicketId = null;
     const supportName = 'Soporte TI'; // Nombre del emisor de mensajes desde el dashboard
     let currentSupportUser = null;
+    let currentPeriodFilter = 'semana'; // Filtro por defecto: semana
+    let chartInstance = null; // Instancia de Chart.js
 
     document.addEventListener("DOMContentLoaded", () => {
       currentSupportUser = localStorage.getItem('helpdesk_tecnico') || '';
@@ -349,7 +380,7 @@
       const selectEl = document.getElementById('manualUser');
       if (!selectEl) return;
       
-      selectEl.innerHTML = '<option value="" disabled selected>Seleccione un docente...</option>';
+      selectEl.innerHTML = '<option value="" disabled selected>Seleccione la persona atendida...</option>';
       
       // Ordenar alfabéticamente
       const sortedDocentes = [...DOCENTES_AUTORIZADOS].sort((a, b) => a.localeCompare(b));
@@ -364,8 +395,15 @@
 
     // Modal de Registro Manual
     function openCreateModal() {
+      const timeInput = document.getElementById('manualAttentionTime');
+      if (timeInput) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        timeInput.value = now.toISOString().slice(0, 16);
+      }
       document.getElementById('createModal').classList.add('show');
     }
+
     function closeCreateModal() {
       document.getElementById('createModal').classList.remove('show');
       document.getElementById('manualTicketForm').reset();
@@ -381,6 +419,7 @@
       }
 
       const user = document.getElementById('manualUser').value.trim();
+      const attentionTime = document.getElementById('manualAttentionTime').value;
       const location = document.getElementById('manualLocation').value.trim();
       const type = document.getElementById('manualType').value;
       const description = document.getElementById('manualDescription').value.trim();
@@ -393,6 +432,8 @@
         action: 'create',
         token: apiToken, // Incluir token en payload POST
         usuario: user,
+        tecnico: currentSupportUser, // Técnico que registró/atendió la solicitud
+        fechaHora: attentionTime ? new Date(attentionTime).toISOString() : new Date().toISOString(),
         ubicacion: location,
         tipoSolicitud: type,
         descripcion: description
@@ -428,6 +469,70 @@
         });
     }
 
+    // Cambiar filtro de periodo (Día, Semana, Mes, Todos)
+    function setPeriodFilter(period) {
+      currentPeriodFilter = period;
+      
+      document.querySelectorAll('.period-pill').forEach(btn => {
+        if (btn.getAttribute('data-period') === period) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      
+      const badge = document.getElementById('chartPeriodBadge');
+      if (badge) {
+        const periodLabels = {
+          'dia': 'Vista por Día (Hoy)',
+          'semana': 'Vista Semanal',
+          'mes': 'Vista Mensual',
+          'todos': 'Vista Histórico Completo'
+        };
+        badge.innerText = periodLabels[period] || 'Vista Filtrada';
+      }
+      
+      applyFilters();
+    }
+
+    // Funciones auxiliares de parseo de fechas y filtrado por periodo
+    function parseTicketDate(dateVal) {
+      if (!dateVal) return null;
+      const d = new Date(dateVal);
+      if (!isNaN(d.getTime())) return d;
+      return null;
+    }
+
+    function filterTicketsByPeriod(tickets, period) {
+      if (period === 'todos') return tickets;
+      const now = new Date();
+      
+      return tickets.filter(t => {
+        const tDate = parseTicketDate(t.fechaHora);
+        if (!tDate) return true; // Si no se parsea la fecha, mantenerlo por defecto
+        
+        if (period === 'dia') {
+          return tDate.getDate() === now.getDate() &&
+                 tDate.getMonth() === now.getMonth() &&
+                 tDate.getFullYear() === now.getFullYear();
+        } else if (period === 'semana') {
+          const day = now.getDay();
+          const diffToMonday = now.getDate() - day + (day === 0 ? -6 : 1);
+          const monday = new Date(now.getFullYear(), now.getMonth(), diffToMonday, 0, 0, 0, 0);
+          
+          const sunday = new Date(monday);
+          sunday.setDate(sunday.getDate() + 6);
+          sunday.setHours(23, 59, 59, 999);
+          
+          return tDate >= monday && tDate <= sunday;
+        } else if (period === 'mes') {
+          return tDate.getMonth() === now.getMonth() &&
+                 tDate.getFullYear() === now.getFullYear();
+        }
+        return true;
+      });
+    }
+
     // Obtener todos los tickets de Google Sheets
     function fetchTickets(showLoading = true) {
       if (!apiUrl) return;
@@ -456,10 +561,7 @@
 
           ticketsList = Array.isArray(data) ? data : [];
           
-          // Renderizar métricas globales
-          renderStats(ticketsList);
-          
-          // Aplicar filtros de la barra superior sobre el listado actual
+          // Aplicar filtros (que a su vez actualiza estadísticas y gráfica)
           applyFilters();
 
           // Si el modal de chat está abierto, refrescar el historial
@@ -494,22 +596,98 @@
       document.getElementById('statResolved').innerText = resolved;
     }
 
+    // Renderizar Gráfica Interactiva con Chart.js
+    function renderChart(tickets) {
+      const ctx = document.getElementById('ticketsChart');
+      if (!ctx) return;
+
+      const categories = [
+        "Falla de Red/Internet",
+        "Reparación de Hardware",
+        "Soporte de iPads",
+        "Instalación de Software",
+        "Otro"
+      ];
+
+      const counts = categories.map(cat => {
+        return tickets.filter(t => (t.tipoSolicitud || 'Otro') === cat).length;
+      });
+
+      const chartData = {
+        labels: categories,
+        datasets: [{
+          label: 'Cantidad de Casos',
+          data: counts,
+          backgroundColor: [
+            'rgba(2, 132, 199, 0.75)',
+            'rgba(217, 119, 6, 0.75)',
+            'rgba(147, 51, 234, 0.75)',
+            'rgba(16, 185, 129, 0.75)',
+            'rgba(100, 116, 139, 0.75)'
+          ],
+          borderColor: [
+            '#0284c7',
+            '#d97706',
+            '#9333ea',
+            '#10b981',
+            '#64748b'
+          ],
+          borderWidth: 1.5,
+          borderRadius: 6
+        }]
+      };
+
+      if (chartInstance) {
+        chartInstance.data = chartData;
+        chartInstance.update();
+      } else {
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) => ` ${context.raw} caso(s)`
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 1,
+                  precision: 0
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
     // Aplicar filtros e inyectar filas en la tabla
     function applyFilters() {
       const searchValue = document.getElementById('filterSearch').value.toLowerCase().trim();
       const statusValue = document.getElementById('filterStatus').value;
       const typeValue = document.getElementById('filterType').value;
 
-      // Ciberseguridad/Filtro local de tickets ocultados
-      const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
+      // 1. Filtrar por el periodo temporal seleccionado (Día, Semana, Mes, Todos)
+      const periodFiltered = filterTicketsByPeriod(ticketsList, currentPeriodFilter);
 
-      // Filtrar array completo
-      let filtered = ticketsList.filter(ticket => {
-        if (hiddenTickets.includes(ticket.id)) return false;
+      // 2. Actualizar estadísticas y gráfica con los tickets pertenecientes al periodo
+      renderStats(periodFiltered);
+      renderChart(periodFiltered);
 
+      // 3. Filtrar por búsqueda, estado y tipo de solicitud
+      let filtered = periodFiltered.filter(ticket => {
         // Filtro de Texto
         const matchesSearch = !searchValue || 
                               (ticket.usuario && ticket.usuario.toLowerCase().includes(searchValue)) ||
+                              (ticket.tecnico && ticket.tecnico.toLowerCase().includes(searchValue)) ||
                               (ticket.ubicacion && ticket.ubicacion.toLowerCase().includes(searchValue)) ||
                               (ticket.descripcion && ticket.descripcion.toLowerCase().includes(searchValue));
         
@@ -534,7 +712,7 @@
       if (tickets.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="8" class="text-center" style="color: var(--text-muted); padding: 2rem;">
+            <td colspan="9" class="text-center" style="color: var(--text-muted); padding: 2rem;">
               No se encontraron tickets con los filtros seleccionados.
             </td>
           </tr>
@@ -548,6 +726,10 @@
           hour: '2-digit', minute: '2-digit'
         }) : '---';
 
+        const tecnicoStr = ticket.tecnico
+          ? `<span style="font-weight: 600; color: var(--primary-light);">👤 ${ticket.tecnico}</span>`
+          : `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Sin asignar</span>`;
+
         // Definir clases CSS de select según estado
         let selectClass = 'select-pendiente';
         if (ticket.estado === 'En Proceso') selectClass = 'select-proceso';
@@ -558,14 +740,15 @@
           ? `<button class="btn btn-chat" onclick="openChat(${ticket.id})">🛠️ Atender / Chat</button>`
           : `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No aplica (Requiere 'En Proceso')</span>`;
 
-        // Botón de ocultar local
-        const deleteButton = `<button class="btn" style="padding: 0.25rem 0.5rem; background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;" onclick="hideTicket(${ticket.id})" title="Ocultar de la vista (No borra en Google Sheets)">🗑️</button>`;
+        // Botón de eliminar permanentemente en Google Sheets
+        const deleteButton = `<button class="btn" style="padding: 0.25rem 0.5rem; background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;" onclick="deleteTicket(${ticket.id})" title="Eliminar permanentemente de Google Sheets">🗑️</button>`;
 
         return `
           <tr>
             <td style="font-weight: 700;">#${ticket.id}</td>
             <td>${dateStr}</td>
             <td style="font-weight: 600;">${ticket.usuario}</td>
+            <td>${tecnicoStr}</td>
             <td>${ticket.ubicacion}</td>
             <td style="font-weight: 600; color: var(--primary-accent);">${ticket.tipoSolicitud}</td>
             <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ticket.descripcion}">
@@ -589,16 +772,44 @@
       }).join('');
     }
 
-    // Ocultar ticket localmente sin borrar de Google Sheets
-    function hideTicket(id) {
-      if (confirm(`¿Deseas ocultar el ticket #${id} de esta pantalla? (No se eliminará de Google Sheets)`)) {
-        const hiddenTickets = JSON.parse(localStorage.getItem('helpdesk_hidden_tickets')) || [];
-        if (!hiddenTickets.includes(id)) {
-          hiddenTickets.push(id);
-          localStorage.setItem('helpdesk_hidden_tickets', JSON.stringify(hiddenTickets));
+    // Eliminar ticket permanentemente de Google Sheets
+    function deleteTicket(id) {
+      if (confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR PERMANENTEMENTE el ticket #${id}?\nEsta acción lo borrará también del Excel de Google Sheets.`)) {
+        if (!apiUrl) {
+          alert('Configura la URL de la API de Apps Script.');
+          return;
         }
-        applyFilters();
-        showToast(`✅ Ticket #${id} ocultado de la vista local.`);
+
+        const payload = {
+          action: 'delete',
+          token: apiToken,
+          id: id
+        };
+
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => {
+            if (!response.ok) throw new Error("Error de red.");
+            return response.json();
+          })
+          .then(result => {
+            if (result.success) {
+              showToast(`🗑️ Ticket #${id} eliminado permanentemente de Google Sheets.`);
+              ticketsList = ticketsList.filter(t => t.id !== id);
+              applyFilters();
+            } else {
+              alert('Error al eliminar el ticket: ' + result.error);
+            }
+          })
+          .catch(err => {
+            console.error("Error al eliminar:", err);
+            alert('Hubo un error al intentar borrar el ticket de Google Sheets.');
+          });
       }
     }
 
@@ -613,7 +824,8 @@
         action: 'update_status',
         token: apiToken, // Incluir token en payload POST
         id: id,
-        estado: newStatus
+        estado: newStatus,
+        tecnico: currentSupportUser // Registrar el nombre del técnico logueado que atiende
       };
 
       fetch(apiUrl, {
@@ -629,11 +841,14 @@
         })
         .then(result => {
           if (result.success) {
-            showToast(`✅ Ticket #${id} actualizado a "${newStatus}" correctamente.`);
+            showToast(`✅ Ticket #${id} actualizado a "${newStatus}" por ${currentSupportUser || 'Soporte'}.`);
             
             // Actualizar localmente la lista en lugar de hacer un fetch con reload completo
             const ticket = ticketsList.find(t => t.id === id);
-            if (ticket) ticket.estado = newStatus;
+            if (ticket) {
+              ticket.estado = newStatus;
+              if (currentSupportUser) ticket.tecnico = currentSupportUser;
+            }
             
             // Re-aplicar filtros
             applyFilters();
@@ -698,14 +913,16 @@
       }
 
       chatContainer.innerHTML = chatHistory.map(msg => {
-        const isOwn = msg.remitente && msg.remitente.toLowerCase().trim() === supportName.toLowerCase().trim();
+        const sender = msg.remitente || '';
+        const isOwn = sender.toLowerCase().trim() === supportName.toLowerCase().trim() ||
+                      (currentSupportUser && sender.toLowerCase().trim() === currentSupportUser.toLowerCase().trim());
         const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('es-MX', {
           hour: '2-digit', minute: '2-digit'
         }) : '';
 
         return `
           <div class="chat-bubble ${isOwn ? 'own' : 'other'}">
-            <span class="chat-sender">${isOwn ? 'Tú (Soporte)' : msg.remitente}</span>
+            <span class="chat-sender">${isOwn ? `Tú (${currentSupportUser || 'Soporte'})` : sender}</span>
             <span class="chat-text">${msg.mensaje}</span>
             <span class="chat-time">${timeStr}</span>
           </div>
@@ -727,11 +944,13 @@
       inputEl.disabled = true;
       sendBtn.disabled = true;
 
+      const senderName = currentSupportUser || supportName;
+
       const payload = {
         action: 'add_message',
         token: apiToken, // Incluir token en payload POST
         id: activeChatTicketId,
-        remitente: supportName,
+        remitente: senderName,
         mensaje: message
       };
 

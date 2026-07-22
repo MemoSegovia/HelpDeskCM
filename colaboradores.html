@@ -122,6 +122,7 @@
               <tr>
                 <th>ID</th>
                 <th>Fecha / Hora</th>
+                <th>Técnico Atendió</th>
                 <th>Ubicación</th>
                 <th>Tipo de Reporte</th>
                 <th>Descripción</th>
@@ -131,7 +132,7 @@
             </thead>
             <tbody id="ticketsTableBody">
               <tr>
-                <td colspan="7" class="text-center" style="color: var(--text-muted); padding: 2rem;">
+                <td colspan="8" class="text-center" style="color: var(--text-muted); padding: 2rem;">
                   Inicia sesión para ver tus tickets.
                 </td>
               </tr>
@@ -400,7 +401,7 @@
       if (visibleTickets.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="7" class="text-center" style="color: var(--text-muted); padding: 2rem;">
+            <td colspan="8" class="text-center" style="color: var(--text-muted); padding: 2rem;">
               No tienes tickets registrados actualmente. ¡Usa el formulario lateral para enviar un reporte!
             </td>
           </tr>
@@ -416,6 +417,10 @@
           day: '2-digit', month: '2-digit', year: 'numeric',
           hour: '2-digit', minute: '2-digit'
         }) : '---';
+
+        const tecnicoStr = ticket.tecnico
+          ? `<span style="font-weight: 600; color: var(--primary-light);">👤 ${ticket.tecnico}</span>`
+          : `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Por asignar</span>`;
 
         let badgeClass = 'badge-pending';
         if (ticket.estado === 'En Proceso') badgeClass = 'badge-process';
@@ -433,6 +438,7 @@
           <tr>
             <td style="font-weight: 700;">#${ticket.id}</td>
             <td>${dateStr}</td>
+            <td>${tecnicoStr}</td>
             <td>${ticket.ubicacion}</td>
             <td style="font-weight: 600;">${ticket.tipoSolicitud}</td>
             <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ticket.descripcion}">
