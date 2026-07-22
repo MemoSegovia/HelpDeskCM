@@ -188,10 +188,10 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="manualUser" class="form-label">Persona a la que se le dio el soporte (Docente / Administrativo)</label>
-            <select id="manualUser" class="form-control" required>
-              <option value="" disabled selected>Seleccione la persona atendida...</option>
+            <input type="text" id="manualUser" list="docentesList" class="form-control" placeholder="Escribe o selecciona la persona atendida..." required autocomplete="off">
+            <datalist id="docentesList">
               <!-- Cargado dinámicamente con JavaScript -->
-            </select>
+            </datalist>
           </div>
 
           <div class="form-group">
@@ -385,21 +385,18 @@
       }, 15000);
     }
 
-    // Poblar dropdown de docentes de registro manual
+    // Poblar datalist de docentes para registro manual libre o selección
     function populateDocentesDropdown() {
-      const selectEl = document.getElementById('manualUser');
-      if (!selectEl) return;
+      const datalistEl = document.getElementById('docentesList');
+      if (!datalistEl) return;
       
-      selectEl.innerHTML = '<option value="" disabled selected>Seleccione la persona atendida...</option>';
-      
-      // Ordenar alfabéticamente
+      datalistEl.innerHTML = '';
       const sortedDocentes = [...DOCENTES_AUTORIZADOS].sort((a, b) => a.localeCompare(b));
       
       sortedDocentes.forEach(docente => {
         const option = document.createElement('option');
         option.value = docente;
-        option.textContent = docente;
-        selectEl.appendChild(option);
+        datalistEl.appendChild(option);
       });
     }
 
