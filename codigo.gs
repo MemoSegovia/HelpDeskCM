@@ -129,13 +129,32 @@ function doPost(e) {
       sheet.getRange(id, 6).setValue(newStatus);
       
       // Si se proporciona el técnico asignado / que atiende (Columna 8 / H)
-      if (tecnico) {
+      if (tecnico !== undefined) {
         sheet.getRange(id, 8).setValue(tecnico);
       }
       
       return createJsonResponse({ 
         success: true, 
         message: 'Estado actualizado correctamente a: ' + newStatus 
+      });
+      
+    } else if (action === 'edit_ticket') {
+      const id = parseInt(payload.id);
+      
+      if (isNaN(id) || id < 2 || id > sheet.getLastRow()) {
+        return createJsonResponse({ success: false, error: 'ID de ticket inválido.' });
+      }
+      
+      if (payload.usuario !== undefined) sheet.getRange(id, 2).setValue(payload.usuario);
+      if (payload.ubicacion !== undefined) sheet.getRange(id, 3).setValue(payload.ubicacion);
+      if (payload.tipoSolicitud !== undefined) sheet.getRange(id, 4).setValue(payload.tipoSolicitud);
+      if (payload.descripcion !== undefined) sheet.getRange(id, 5).setValue(payload.descripcion);
+      if (payload.estado !== undefined) sheet.getRange(id, 6).setValue(payload.estado);
+      if (payload.tecnico !== undefined) sheet.getRange(id, 8).setValue(payload.tecnico);
+      
+      return createJsonResponse({ 
+        success: true, 
+        message: 'Ticket #' + id + ' editado exitosamente en Google Sheets.' 
       });
       
     } else if (action === 'delete') {
