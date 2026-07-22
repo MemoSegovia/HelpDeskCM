@@ -590,7 +590,18 @@
             throw new Error(data.error || "Ocurrió un error en el servidor.");
           }
 
-          ticketsList = Array.isArray(data) ? data : [];
+          const rawTickets = Array.isArray(data) ? data : [];
+          const savedTecnicos = JSON.parse(localStorage.getItem('helpdesk_ticket_tecnicos')) || {};
+
+          ticketsList = rawTickets.map(ticket => {
+            if (!ticket.tecnico && savedTecnicos[ticket.id]) {
+              ticket.tecnico = savedTecnicos[ticket.id];
+            } else if (ticket.tecnico) {
+              savedTecnicos[ticket.id] = ticket.tecnico;
+            }
+            return ticket;
+          });
+          localStorage.setItem('helpdesk_ticket_tecnicos', JSON.stringify(savedTecnicos));
           
           // Aplicar filtros (que a su vez actualiza estadísticas y gráfica)
           applyFilters();
@@ -823,12 +834,19 @@
 
     // Asignar o cambiar técnico en Google Sheets
     function updateTicketTechnician(id, newTechnician) {
-      if (!apiUrl) {
-        alert('Configura la URL de la API de Apps Script.');
-        return;
-      }
-
+      // 1. Actualizar inmediatamente en memoria local y localStorage
       const ticket = ticketsList.find(t => t.id === id);
+      if (ticket) {
+        ticket.tecnico = newTechnician;
+      }
+      const savedTecnicos = JSON.parse(localStorage.getItem('helpdesk_ticket_tecnicos')) || {};
+      savedTecnicos[id] = newTechnician;
+      localStorage.setItem('helpdesk_ticket_tecnicos', JSON.stringify(savedTecnicos));
+
+      showToast(`✅ Técnico del ticket #${id} asignado a "${newTechnician || 'Sin asignar'}".`);
+
+      if (!apiUrl) return;
+
       const currentStatus = ticket ? ticket.estado : 'Pendiente';
 
       const payload = {
@@ -851,17 +869,12 @@
           return response.json();
         })
         .then(result => {
-          if (result.success) {
-            showToast(`✅ Técnico del ticket #${id} asignado a "${newTechnician || 'Sin asignar'}".`);
-            if (ticket) ticket.tecnico = newTechnician;
-            applyFilters();
-          } else {
-            alert('Error al actualizar técnico: ' + result.error);
+          if (!result.success) {
+            console.warn('Error backend al actualizar técnico:', result.error);
           }
         })
         .catch(err => {
-          console.error("Error al asignar técnico:", err);
-          alert('Hubo un error al conectar con Google Sheets.');
+          console.error("Error al asignar técnico en backend:", err);
         });
     }
 
@@ -894,6 +907,12 @@
             if (result.success) {
               showToast(`🗑️ Ticket #${id} eliminado permanentemente de Google Sheets.`);
               ticketsList = ticketsList.filter(t => t.id !== id);
+              
+              // Eliminar de localStorage también
+              const savedTecnicos = JSON.parse(localStorage.getItem('helpdesk_ticket_tecnicos')) || {};
+              delete savedTecnicos[id];
+              localStorage.setItem('helpdesk_ticket_tecnicos', JSON.stringify(savedTecnicos));
+
               applyFilters();
             } else {
               alert('Error al eliminar el ticket: ' + result.error);
@@ -913,12 +932,23 @@
         return;
       }
 
+      const ticket = ticketsList.find(t => t.id === id);
+      if (ticket) {
+        ticket.estado = newStatus;
+        if (currentSupportUser && !ticket.tecnico) {
+          ticket.tecnico = currentSupportUser;
+          const savedTecnicos = JSON.parse(localStorage.getItem('helpdesk_ticket_tecnicos')) || {};
+          savedTecnicos[id] = currentSupportUser;
+          localStorage.setItem('helpdesk_ticket_tecnicos', JSON.stringify(savedTecnicos));
+        }
+      }
+
       const payload = {
         action: 'update_status',
         token: apiToken, // Incluir token en payload POST
         id: id,
         estado: newStatus,
-        tecnico: currentSupportUser // Registrar el nombre del técnico logueado que atiende
+        tecnico: (ticket && ticket.tecnico) ? ticket.tecnico : currentSupportUser
       };
 
       fetch(apiUrl, {

@@ -347,10 +347,19 @@
 
           const allTickets = Array.isArray(data) ? data : [];
           
+          const savedTecnicos = JSON.parse(localStorage.getItem('helpdesk_ticket_tecnicos')) || {};
+
           // Filtrar tickets pertenecientes al docente logueado
-          currentTicketsList = allTickets.filter(ticket => 
-            ticket.usuario && ticket.usuario.toLowerCase().trim() === currentUser.toLowerCase().trim()
-          );
+          currentTicketsList = allTickets
+            .filter(ticket => 
+              ticket.usuario && ticket.usuario.toLowerCase().trim() === currentUser.toLowerCase().trim()
+            )
+            .map(ticket => {
+              if (!ticket.tecnico && savedTecnicos[ticket.id]) {
+                ticket.tecnico = savedTecnicos[ticket.id];
+              }
+              return ticket;
+            });
 
           // Verificar notificaciones por cambios de estado
           checkNotifications(currentTicketsList);
