@@ -313,16 +313,25 @@ textarea.form-control {
 }
 
 .hero-logo-img {
-  max-height: 160px;
-  width: auto;
+  width: 100%;
+  max-width: 480px;
+  max-height: 280px;
+  height: auto;
   object-fit: contain;
-  margin-bottom: 1.5rem;
-  filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.15));
+  margin: 0 auto 1.5rem auto;
+  filter: drop-shadow(0 12px 28px rgba(15, 23, 42, 0.14));
   transition: transform var(--transition-normal);
 }
 
 .hero-logo-img:hover {
   transform: scale(1.03);
+}
+
+@media (max-width: 600px) {
+  .hero-logo-img {
+    max-width: 290px;
+    max-height: 180px;
+  }
 }
 
 .login-logo-img {
