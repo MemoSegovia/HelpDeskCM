@@ -304,6 +304,35 @@ textarea.form-control {
   display: block;
 }
 
+/* Estilos de Logotipo */
+.brand-logo-img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+}
+
+.hero-logo-img {
+  max-height: 160px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.15));
+  transition: transform var(--transition-normal);
+}
+
+.hero-logo-img:hover {
+  transform: scale(1.03);
+}
+
+.login-logo-img {
+  max-height: 90px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
 .user-profile {
   display: flex;
   align-items: center;
