@@ -1,0 +1,17 @@
+{
+  "name": "Helpdesk CM",
+  "short_name": "Helpdesk CM",
+  "description": "Sistema de soporte tecnológico y gestión de incidencias del Colegio Mexicano",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f2027",
+  "theme_color": "#0f2027",
+  "icons": [
+    {
+      "src": "Logo/Helpdesk-CM-Logotipo-_3_.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ]
+}
